@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 from flask import Flask
-from data import authorize_sheets
+#from data import authorize_sheets
 
 app = Flask(__name__)
  
@@ -42,6 +42,6 @@ SCOPES = ['https://www.googleapis.com/auth/spreadsheets.readonly']
 
 
 if __name__ == '__main__':
-    service = None
-    authorize_sheets()
+    #    service = None
+    #    authorize_sheets()
     app.run(debug=True, host='0.0.0.0')
