@@ -5,10 +5,36 @@ import spotipy
 import spotipy.oauth2 as sp_oauth2
 
 #from data import authorize_sheets
-import spotipy_fns
+#import spotipy_fns
 
-app = Flask(__name__)
- 
+
+def create_app(test_config=None):
+    app = Flask(__name__, instance_relative_config=True)
+    app.config.from_mapping(
+        SECRET_KEY='dev',
+        DATABASE=os.path.join(app.instance_path, 'dancify.sqlite'),
+        )
+    if test_config is None:
+        # load the instance config when not testing
+        app.config.from_pyfile('config.py', silent=True)
+    else:
+        app.config.from_mapping(test_config)
+
+    # ensure the instance folder exists
+    try:
+        os.makedirs(app.instance_path)
+    except OSError:
+        # dir alread exist
+        pass
+
+    @app.route('/hello')
+    def hello():
+        return "Hello, World!"
+
+    return app
+
+"""
+
 # Get client keys from environment
 client_id = os.getenv('SPOTIFY_CLIENT_ID')
 client_secret = os.getenv('SPOTIFY_CLIENT_SECRET')
@@ -113,3 +139,4 @@ if __name__ == '__main__':
     #    service = None
     #    authorize_sheets()
     app.run(debug=True, host='0.0.0.0')
+"""
