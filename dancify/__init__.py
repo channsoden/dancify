@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 import os, json, requests, base64, urllib
+
 from flask import Flask, request, redirect
+
 import spotipy
 import spotipy.oauth2 as sp_oauth2
 
@@ -31,6 +33,9 @@ def create_app(test_config=None):
     def hello():
         return "Hello, World!"
 
+    from . import db
+    db.init_app(app)
+    
     return app
 
 """
