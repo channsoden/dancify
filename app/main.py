@@ -1,12 +1,81 @@
 #!/usr/bin/env python
-from flask import Flask
+import os, json, requests, base64, urllib
+from flask import Flask, request, redirect
+import spotipy
+import spotipy.oauth2 as sp_oauth2
+
 #from data import authorize_sheets
+import spotipy_fns
 
 app = Flask(__name__)
  
+# Get client keys from environment
+client_id = os.getenv('SPOTIFY_CLIENT_ID')
+client_secret = os.getenv('SPOTIFY_CLIENT_SECRET')
+
+# Spotify URLs
+spotify_auth_url = 'https://accounts.spotify.com/authorize'
+spotify_token_url = 'https://accounts.spotify.com/api/token'
+spotify_api_base_url = "https://api.spotify.com"
+api_version = "v1"
+spotify_api_url = "{}/{}".format(spotify_api_base_url, api_version)
+
+# Server-side Parameters
+client_side_url = "http://localhost:5000"
+redirect_uri = "{}/callback/q".format(client_side_url)
+scope = "user-library-read playlist-read-private"
+state = ""
+show_dialog_bool = True
+show_dialog_str = str(show_dialog_bool).lower()
+
+auth_query_parameters = {
+    "response_type": "code",
+    "redirect_uri": redirect_uri,
+    "scope": scope,
+    # "state": state,
+    # "show_dialog": show_dialog_str,
+    "client_id": client_id
+}
+
+# Spotipy object
+sp = None
+
 @app.route('/')
 def hello():
-    return 'Hello World!'
+    if sp:
+        lines = []
+        lines.append( spotipy_fns.user_info_block(sp.current_user()) )
+        lines.append( '' )
+        lines.append( 'Playlists:' )
+        results = sp.current_user_playlists()
+        for item in results['items']:
+            lines.append( str(item['name']) )
+        html = '<br />'.join(lines)
+        return html
+    else:
+        return redirect('{}/login'.format(client_side_url))
+
+
+@app.route("/login")
+def spotify_oauth():
+    url_args = '&'.join(['{}={}'.format(key, urllib.parse.quote(val.encode('utf-8'))) for key,val in auth_query_parameters.items()])
+    auth_url = '{}/?{}'.format(spotify_auth_url, url_args)
+    return redirect(auth_url)
+
+@app.route("/callback/q")
+def spotify_callback():
+    response_code = request.args['code']
+    authorizer = sp_oauth2.SpotifyOAuth(client_id, client_secret, redirect_uri, scope=scope, cache_path=None)
+    token = authorizer.get_access_token(response_code)['access_token']
+    if token:
+        print(token)
+        global sp
+        sp = spotipy.Spotify(auth=token)
+        return redirect(client_side_url)
+    else:
+        return("Failed to get authentication token.")
+
+
 
 @app.route('/class_data')
 def class_data():
@@ -37,8 +106,7 @@ def view_playlist(ID):
     return 'Playlist ID: {}'.format(ID)
 
 # If modifying these scopes, delete the file token.pickle.
-SCOPES = ['https://www.googleapis.com/auth/spreadsheets.readonly']
-
+sheets_scopes = ['https://www.googleapis.com/auth/spreadsheets.readonly']
 
 
 if __name__ == '__main__':

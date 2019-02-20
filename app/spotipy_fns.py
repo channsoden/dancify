@@ -1,12 +1,11 @@
 #!/usr/bin/env python
-from spotipy.oauth2 import SpotifyClientCredentials
-import spotipy
 
-def connect(cid = '',
-            secret = ''):
-    client_credentials_manager = SpotifyClientCredentials(client_id=cid, client_secret=secret)
-    global sp
-    sp = spotipy.Spotify(client_credentials_manager=client_credentials_manager)
+def user_info_block(user_dict):
+    print(user_dict)
+    name = user_dict['display_name']
+    photo = user_dict['images'][0]['url']
+    img_tag = '<img src="{}" alt="{}" height="50" width="50">'
+    return '{} {}'.format(img_tag.format(photo, name), name)
 
 def get_playlist_tracks(user, playlist):
     track_dispenser = sp.user_playlist_tracks(user, playlist)
