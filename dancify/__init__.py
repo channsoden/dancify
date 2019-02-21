@@ -35,6 +35,9 @@ def create_app(test_config=None):
 
     from . import db
     db.init_app(app)
+
+    from . import auth
+    app.register_blueprint(auth.bp)
     
     return app
 
@@ -84,7 +87,7 @@ def hello():
         html = '<br />'.join(lines)
         return html
     else:
-        return redirect('{}/login'.format(client_side_url))
+        return redirect('{}/login'.format(client_side_url)) # use url_for
 
 
 @app.route("/login")
@@ -100,7 +103,10 @@ def spotify_callback():
     token = authorizer.get_access_token(response_code)['access_token']
     if token:
         print(token)
-        global sp
+        global sp # the spotipy object should be unique to the session
+        # the auth token should be stored in the flask.session
+        # session values are stored in cookies sent to user, so I don't need to keep user's spotify tokens
+        # but maybe I should encrypt the token and store it in my db so that users don't have to keep loggin in to spotify?
         sp = spotipy.Spotify(auth=token)
         return redirect(client_side_url)
     else:
