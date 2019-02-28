@@ -1,9 +1,9 @@
 #!/usr/bin/env python
 import os, json, requests, base64, urllib
 
-from flask import Flask, request, redirect
+from flask import Flask, g, request, redirect
 
-import spotipy_fns
+from . import spotipy_fns
 
 def create_app(test_config=None):
     app = Flask(__name__, instance_relative_config=True)
@@ -38,7 +38,7 @@ def create_app(test_config=None):
     app.register_blueprint(spotify_auth.bp)
 
     @app.route('/playlists')
-    @spotify_auth.login_required():
+    @spotify_auth.login_required
     def playlists():
         lines = []
         lines.append( spotipy_fns.user_info_block(g.user) )
