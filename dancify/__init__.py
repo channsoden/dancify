@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 import os, json, requests, base64, urllib
 
-from flask import Flask, g, request, redirect
+from flask import Flask, g, request, redirect, url_for
 
 from . import spotipy_fns
 
@@ -10,6 +10,7 @@ def create_app(test_config=None):
     app.config.from_mapping(
         SECRET_KEY='dev',
         DATABASE=os.path.join(app.instance_path, 'dancify.sqlite'),
+        SERVER_NAME='localhost:5000',
         )
     if test_config is None:
         # load the instance config when not testing
@@ -23,32 +24,27 @@ def create_app(test_config=None):
     except OSError:
         # dir alread exist
         pass
-
-    @app.route('/')
-    def index():
-        if g.user:
-            return spotipy_fns.user_info_block(g.user)
-        else:
-            return 'Not logged in'
     
     from . import db
     db.init_app(app)
 
     from . import spotify_auth
     app.register_blueprint(spotify_auth.bp)
+    with app.test_request_context():
+        spotify_auth.init_authorizer()
 
-    @app.route('/playlists')
-    @spotify_auth.login_required
-    def playlists():
-        lines = []
-        lines.append( spotipy_fns.user_info_block(g.user) )
-        lines.append( '' )
-        lines.append( 'Playlists:' )
-        results = g.sp.current_user_playlists()
-        for item in results['items']:
-            lines.append( str(item['name']) )
-        html = '<br />'.join(lines)
-        return html
+    from . import collections
+    app.register_blueprint(collections.bp)
+    
+    @app.route('/')
+    def index():
+        if g.user:
+            usr = spotipy_fns.user_info_block(g.user)
+            logout_link = '<a href="{}">{}</a>'.format(url_for('auth.logout'), 'Logout')
+            return '<br />'.join([usr, logout_link])
+        else:
+            login_link = '<a href="{}">{}</a>'.format(url_for('auth.login'), 'Login')
+            return login_link
     
     return app
 

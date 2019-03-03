@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 
 def user_info_block(user_dict):
-    print(user_dict)
     name = user_dict['display_name']
     photo = user_dict['images'][0]['url']
     img_tag = '<img src="{}" alt="{}" height="50" width="50">'

@@ -6,76 +6,59 @@ from flask import Blueprint, g, redirect, request, session, url_for
 import spotipy
 from spotipy import oauth2 as sp_oauth2
 
-# Get client keys from environment
-client_id = os.getenv('SPOTIFY_CLIENT_ID')
-client_secret = os.getenv('SPOTIFY_CLIENT_SECRET')
+authorizer = None
+def init_authorizer():
+    global authorizer
+    if authorizer is None:
+        # Get client keys from environment
+        client_id = os.getenv('SPOTIFY_CLIENT_ID')
+        client_secret = os.getenv('SPOTIFY_CLIENT_SECRET')
 
-# Spotify URLs
-spotify_auth_url = 'https://accounts.spotify.com/authorize'
-spotify_token_url = 'https://accounts.spotify.com/api/token'
-spotify_api_base_url = "https://api.spotify.com"
-api_version = "v1"
-spotify_api_url = "{}/{}".format(spotify_api_base_url, api_version)
-
-# Auth parameters
-scope = "user-library-read playlist-read-private"
-state = ""
-show_dialog_bool = True
-show_dialog_str = str(show_dialog_bool).lower()
-
+        # Auth parameters
+        scope = "user-library-read playlist-read-private"
+        state = ""
+        show_dialog_bool = True
+        show_dialog_str = str(show_dialog_bool).lower()
+        
+        authorizer = sp_oauth2.SpotifyOAuth(client_id,
+                                            client_secret,
+                                            url_for('auth.spotify_callback', _external=True),
+                                            scope=scope,
+                                            cache_path=None)
 
 bp = Blueprint('auth', __name__, url_prefix='/auth')
 
 @bp.route('/login')
 def login():
-    # Server-side Parameters
-    # Should use flask.url_for()
-    #client_side_url = "http://localhost:5000"
-    #redirect_uri = "{}/callback/q".format(client_side_url)
-    
-    auth_query_parameters = {
-        "response_type": "code",
-        "redirect_uri": url_for('auth.spotify_callback', _external=True),
-        "scope": scope,
-        # "state": state,
-        # "show_dialog": show_dialog_str,
-        "client_id": client_id
-    }
-    
-    url_args = ['{}={}'.format(key, urllib.parse.quote(val.encode('utf-8')))
-                for key,val in auth_query_parameters.items()]
-    url_args = '&'.join(url_args)
-    auth_url = '{}/?{}'.format(spotify_auth_url, url_args)
+    auth_url = authorizer.get_authorize_url()
     return redirect(auth_url)
 
 @bp.route('/callback/q')
 def spotify_callback():
     response_code = request.args['code']
-    authorizer = sp_oauth2.SpotifyOAuth(client_id,
-                                        client_secret,
-                                        url_for('auth.spotify_callback', _external=True),
-                                        scope=scope,
-                                        cache_path=None)
-    token = authorizer.get_access_token(response_code)['access_token']
-    if token:
+    token_info  = authorizer.get_access_token(response_code)
+    if token_info['access_token']:
         # The auth token should be stored in the flask.session
         # session values are stored in cookies sent to user, so I don't need to keep user's spotify tokens
         session.clear()
-        session['sp_token'] = token
-        sp = spotipy.Spotify(auth=token)
-        return redirect(url_for('playlists'))
+        session['token_info'] = token_info
+        return redirect(url_for('collections.playlists'))
     else:
         return("Failed to get authentication token.")
 
 
 @bp.before_app_request
 def load_logged_in_user():
-    token = session.get('sp_token')
+    token_info = session.get('token_info')
 
-    if token is None:
+    if token_info is None:
         g.user = None
     else:
-        g.sp = spotipy.Spotify(auth=token)
+        if authorizer._is_token_expired(token_info):
+            token_info = authorizer.refresh_access_token(token_info['refresh_token'])
+            session['token_info'] = token_info
+
+        g.sp = spotipy.Spotify(auth=token_info['access_token'])
         g.user = g.sp.current_user()
 
 @bp.route('/logout')

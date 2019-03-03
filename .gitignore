@@ -1,5 +1,6 @@
 app/credentials.json
 app/spotitry.credentials
+configure_env
 credentials.json
 spotitry.credentials
 venv/
