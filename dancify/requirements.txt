@@ -1,4 +1,5 @@
 Flask
+flask_table
 spotipy
 google-api-python-client
 google-auth-httplib2
