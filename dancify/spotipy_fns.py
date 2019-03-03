@@ -38,15 +38,4 @@ def get_features(tid):
     features = sp.audio_features(tid)
     features = features[0] # when are there multiple?
     return features
-
-def print_track(tid, title=True, album=False, artists=True):
-    track = sp.track(tid)
-    fields = []
-    if title:
-        fields.append(track['name'])
-    if album:
-        fields.append(track['album'])
-    if artists:
-        fields.append( ', '.join([artist['name'] for artist in track['artists']]) )
-    print(' - '.join(fields))
     
