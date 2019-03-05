@@ -8,6 +8,29 @@ from . import spotify_auth
 
 bp = Blueprint('collections', __name__)
 
+track_features = {
+    'tid': 'ID',
+    'title': 'Track',
+    'artist': 'Artist',
+    'album': 'Album',
+    'popularity': 'Popularity',
+    'release': 'Release',
+    'timestamp': 'Added',
+    'acousticness': 'Acousticness',
+    'danceability': 'Danceability',
+    'duration': 'Duration',
+    'energy': 'Energy',
+    'instrumentalness': 'Instrumentalness',
+    'key': 'Key',
+    'liveness': 'Liveness',
+    'loudness': 'Loudness',
+    'mode': 'Mode',
+    'speechiness': 'Speechiness',
+    'tempo': 'Tempo',
+    'time_signature': 'Time Signature',
+    'valence': 'Valence'
+}
+
 @bp.route('/playlists')
 @spotify_auth.login_required
 def playlists():
@@ -58,28 +81,8 @@ def playlist(uid, plid):
     columns = ['title', 'artist', 'album', 'popularity', 'danceability']
 
     class playlist_table(Table):
-        # Track Info
-        tid = Col('ID', show = 'tid' in columns)
-        title = Col('Track', show = 'title' in columns)
-        artist = Col('Artist', show = 'artist' in columns)
-        album = Col('Album', show = 'album' in columns)
-        popularity = Col('Popularity', show = 'popularity' in columns)
-        release = Col('Release', show = 'release' in columns)
-        timestamp = Col('Added', show = 'timestamp' in columns)
-        # Track Features
-        acousticness = Col('Acousticness', show = 'acousticness' in columns)
-        danceability = Col('Danceability', show = 'danceability' in columns)
-        duration = Col('Duration', show = 'duration' in columns)
-        energy = Col('Energy', show = 'energy' in columns)
-        instrumentalness = Col('Instrumentalness', show = 'instrumentalness' in columns)
-        key = Col('Key', show = 'key' in columns)
-        liveness = Col('Liveness', show = 'liveness' in columns)
-        loudness = Col('Loudness', show = 'loudness' in columns)
-        mode = Col('Mode', show = 'mode' in columns)
-        speechiness = Col('Speechiness', show = 'speechiness' in columns)
-        tempo = Col('Tempo', show = 'tempo' in columns)
-        time_signature = Col('Time Signature', show = 'time_signature' in columns)
-        valence = Col('Valence', show = 'valence' in columns)
+        for iname, xname in track_features.items():
+            locals()[iname] = Col(xname, show = iname in columns)
         
     rows = []
     for track, feats in zip(tracks, features):

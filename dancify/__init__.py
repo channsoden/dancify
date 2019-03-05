@@ -33,6 +33,9 @@ def create_app(test_config=None):
     with app.test_request_context():
         spotify_auth.init_authorizer()
 
+    from . import preferences
+    app.register_blueprint(preferences.bp)
+
     from . import collections
     app.register_blueprint(collections.bp)
     
@@ -41,7 +44,8 @@ def create_app(test_config=None):
         if g.user:
             usr = spotipy_fns.user_info_block(g.user)
             logout_link = '<a href="{}">{}</a>'.format(url_for('auth.logout'), 'Logout')
-            return '<br />'.join([usr, logout_link])
+            preferences_link = '<a href="{}">{}</a>'.format(url_for('preferences.playlists'), 'preferences')
+            return '<br />'.join([usr, logout_link, preferences_link])
         else:
             login_link = '<a href="{}">{}</a>'.format(url_for('auth.login'), 'Login')
             return login_link
