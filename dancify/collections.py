@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-from flask import Blueprint, g, redirect, request, session, url_for
+from flask import Blueprint, g, redirect, request, session, url_for, render_template
 from flask_table import Table, Col
 
 from . import spotipy_fns
@@ -34,12 +34,6 @@ track_features = {
 @bp.route('/playlists')
 @spotify_auth.login_required
 def playlists():
-    lines = []
-    lines.append( spotipy_fns.user_info_block(g.user) )
-    lines.append( '' )
-    lines.append( 'Playlists:' )
-
-    
     list_dispenser = g.sp.current_user_playlists()
     lists = list_dispenser['items']
     while list_dispenser['next']:
@@ -47,23 +41,12 @@ def playlists():
         lists.extend(list_dispenser['items'])
     lists.sort(key = lambda l: l['name'])
 
-    print(lists[0])
-
-    for pl in lists:
-        link = '<a href="{}">{}</a>'.format(url_for('.playlist', uid=pl['owner']['id'], plid=pl['id']), pl['name'])
-        lines.append(link)
-            
-    html = '<br />'.join(lines)
-    return html
+    return render_template('collections/playlists.html', lists=lists)
 
 
 @bp.route('/playlists/<uid>/<plid>')
 @spotify_auth.login_required
 def playlist(uid, plid):
-    lines = []
-    lines.append( spotipy_fns.user_info_block(g.user) )
-    lines.append( '' )
-
     track_dispenser = g.sp.user_playlist_tracks(uid, playlist_id=plid)
     tracks = track_dispenser['items']
     while track_dispenser['next']:
@@ -71,14 +54,7 @@ def playlist(uid, plid):
         tracks.extend(track_dispenser['items'])
     features = g.sp.audio_features([t['track']['id'] for t in tracks])
         
-    import pprint
-    pp = pprint.PrettyPrinter(indent=4)
-    pp.pprint(tracks[0])
-    print()
-    pp.pprint(features)
-    print()
-
-    columns = ['title', 'artist', 'album', 'popularity', 'danceability']
+    columns = session.get('playlist_prefs')['columns'] # should actually add this to g in a load prefs step beforehand
 
     class playlist_table(Table):
         for iname, xname in track_features.items():
@@ -113,5 +89,5 @@ def playlist(uid, plid):
 
     table = playlist_table(rows)
         
-    return '<br />'.join(lines) + table.__html__()
+    return render_template('/collections/collection.html', collection='collection name', table=table.__html__())
 

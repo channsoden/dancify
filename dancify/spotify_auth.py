@@ -60,6 +60,7 @@ def load_logged_in_user():
 
         g.sp = spotipy.Spotify(auth=token_info['access_token'])
         g.user = g.sp.current_user()
+        g.usr = spotipy_fns.user_info_block(g.user)
 
 @bp.route('/logout')
 def logout():

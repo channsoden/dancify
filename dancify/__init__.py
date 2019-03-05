@@ -42,10 +42,8 @@ def create_app(test_config=None):
     @app.route('/')
     def index():
         if g.user:
-            usr = spotipy_fns.user_info_block(g.user)
-            logout_link = '<a href="{}">{}</a>'.format(url_for('auth.logout'), 'Logout')
-            preferences_link = '<a href="{}">{}</a>'.format(url_for('preferences.playlists'), 'preferences')
-            return '<br />'.join([usr, logout_link, preferences_link])
+            preferences_link = '<a href="{}">{}</a>'.format(url_for('preferences.collections'), 'preferences')
+            return '<br />'.join([preferences_link])
         else:
             login_link = '<a href="{}">{}</a>'.format(url_for('auth.login'), 'Login')
             return login_link

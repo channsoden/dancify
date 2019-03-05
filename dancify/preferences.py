@@ -1,21 +1,32 @@
 #!/usr/bin/env python
 
-from flask import Blueprint, g, redirect, request, session, url_for
+from flask import Blueprint, g, redirect, request, session, url_for, render_template
 
 from . import spotify_auth
 from .collections import track_features
 
 bp = Blueprint('preferences', __name__, url_prefix='/preferences')
 
-@bp.route('/playlists', methods = ['GET', 'POST'])
+@bp.route('/collections', methods = ['GET', 'POST'])
 @spotify_auth.login_required
-def playlists():
-    form = ['<form method="post">']
-    col_checkbox = '<input type="checkbox" name="columns" value="{}" checked>'
-    for c in track_features.keys():
-        form.append( col_checkbox.format(c) )
-    form.append( '</form>' )
+def collections():
     if request.method == 'POST':
-        print(request.form.getlist('columns'))
+        g.preferences['collections']['columns'] = request.form.getlist('columns')
+        session['preferences'] = g.preferences
+    
+    return render_template('preferences/collections.html', track_features=track_features)
 
-    return ''.join(form)
+@bp.before_app_request
+def load_preferences():
+    # Should load various preferences from session, setting defaults if None
+    # Store preferences in g
+    prefs = session.get('preferences')
+    if prefs is None:
+        # Set some defaults for this new session.
+        g.preferences = {
+            'collections': {
+                'columns': ['title', 'artist', 'album', 'timestamp']
+            }
+        }
+    else:
+        g.preferences = prefs

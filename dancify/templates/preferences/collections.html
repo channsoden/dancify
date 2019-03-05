@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+
+{% block header %}
+  <h1>{% block title %}Collections{% endblock %}</h1>
+{% endblock %}
+
+{% block content %}
+  <form method="post">
+    {% for internal, display in track_features.items() %}
+    {% if internal in g.preferences['collections']['columns'] %}
+    <label><input type="checkbox" name="columns" value="{{ internal }}" checked>{{ display }}</label>
+    {% else %}
+    <label><input type="checkbox" name="columns" value="{{ internal }}">{{ display }}</label>
+    {% endif %}
+    {% endfor %}
+    <input type="submit" value="Save">
+  </form>
+{% endblock %}

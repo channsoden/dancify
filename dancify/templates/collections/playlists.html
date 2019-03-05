@@ -1,0 +1,11 @@
+{% extends 'base.html' %}
+
+{% block header %}
+  <h1>{% block title %}Playlists{% endblock %}</h1>
+{% endblock %}
+
+{% block content %}
+  {% for pl in lists %}
+    <a href="{{ url_for('.playlist', uid=pl['owner']['id'], plid=pl['id']) }}">{{ pl['name'] }}</a><br>
+  {% endfor %}
+{% endblock %}
