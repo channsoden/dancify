@@ -9,6 +9,8 @@
 	{{ g.user['display_name'] }}</span>
       <li><a href="{{ url_for('auth.logout') }}">Log Out</a>
       <li><a href="{{ url_for('collections.playlists') }}">Playlists</a>
+      <li><a href="{{ url_for('collections.library', page=1) }}">Library</a>
+      <li><a href="{{ url_for('preferences.collections') }}">Preferences</a>
     {% else %}
       <li><a href="{{ url_for('auth.login') }}">Log In</a>
     {% endif %}

@@ -42,7 +42,7 @@ def spotify_callback():
         # session values are stored in cookies sent to user, so I don't need to keep user's spotify tokens
         session.clear()
         session['token_info'] = token_info
-        return redirect(url_for('collections.playlists'))
+        return redirect(url_for('index'))
     else:
         return("Failed to get authentication token.")
 
@@ -60,7 +60,6 @@ def load_logged_in_user():
 
         g.sp = spotipy.Spotify(auth=token_info['access_token'])
         g.user = g.sp.current_user()
-        g.usr = spotipy_fns.user_info_block(g.user)
 
 @bp.route('/logout')
 def logout():

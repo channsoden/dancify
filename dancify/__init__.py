@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 import os, json, requests, base64, urllib
 
-from flask import Flask, g, request, redirect, url_for
+from flask import Flask, g, request, redirect, url_for, render_template
 
 from . import spotipy_fns
 
@@ -41,13 +41,8 @@ def create_app(test_config=None):
     
     @app.route('/')
     def index():
-        if g.user:
-            preferences_link = '<a href="{}">{}</a>'.format(url_for('preferences.collections'), 'preferences')
-            return '<br />'.join([preferences_link])
-        else:
-            login_link = '<a href="{}">{}</a>'.format(url_for('auth.login'), 'Login')
-            return login_link
-    
+        return render_template('base.html')
+        
     return app
 
 
