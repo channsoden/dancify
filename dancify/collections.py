@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+from math import ceil
 
 from flask import Blueprint, g, redirect, request, session, url_for, render_template
 from flask_table import Table, Col
@@ -31,10 +32,22 @@ track_features = {
     'valence': 'Valence'
 }
 
-@bp.route('/library/<page>')
+@bp.route('/library/<int:page>')
 @spotify_auth.login_required
 def library(page):
+    # Eventually should set these preferences and retrieve from g
+    sort_key = None
+    page_size = 100
+    
     track_dispenser = g.sp.current_user_saved_tracks()
+    tracks = sort_tracks(track_dispenser, sort_key=sort_key)
+
+    pages = ceil(len(tracks) / page_size)
+    page = max(1, min(page, pages))
+    page_navigations = set([1, page-10, page-5, page-4, page-3, page-2, page-1, page+1, page+2, page+3, page+4, page+5, page+10, pages])
+    page_urls = [url_for('collections.library', page=i) for i in 
+    track_selection = slice( (page-1)*100, page*100 )
+    
     tracks = spotipy_fns.get_track_info(track_dispenser)
 
     columns = g.preferences['collections']['columns']

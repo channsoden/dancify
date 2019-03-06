@@ -7,13 +7,18 @@ def user_info_block(user_dict):
     img_tag = '<img src="{}" alt="{}" height="50" width="50">'
     return '{} {}'.format(img_tag.format(photo, name), name)
 
-def get_track_info(track_dispenser):
+def sort_tracks(track_dispenser, sort_key=None):
     tracks = track_dispenser['items']
     while track_dispenser['next']:
         track_dispenser = g.sp.next(track_dispenser)
         tracks.extend(track_dispenser['items'])
-    tracks = tracks[:100] # getting features breaks with larger requests
-    # need to split tracks up into pages and allow for paging
+    if sort_key:
+        tracks.sort(key=sort_key)
+    return tracks
+
+def get_track_info(tracks):
+    if len(tracks) > 100:
+        raise ValueError('Too many tracks to retrieve features. Must be <= 100 tracks.')
     ids = [t['track']['id'] for t in tracks]
     features = g.sp.audio_features(ids)
 
