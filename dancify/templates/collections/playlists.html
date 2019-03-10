@@ -6,6 +6,6 @@
 
 {% block content %}
   {% for pl in lists %}
-    <a href="{{ url_for('.playlist', uid=pl['owner']['id'], plid=pl['id']) }}">{{ pl['name'] }}</a><br>
+    <a href="{{ url_for('.playlist', uid=pl['owner']['id'], plid=pl['id'], page=1) }}">{{ pl['name'] }}</a><br>
   {% endfor %}
 {% endblock %}

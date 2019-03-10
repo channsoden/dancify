@@ -5,5 +5,10 @@
 {% endblock %}
 
 {% block content %}
-{{ table|safe }}
+  {{ table|safe }}
+  <center>
+  {% for page_num, page_url in page_links %}
+  <a href="{{ page_url }}">{{ page_num }}</a>
+  {% endfor %}
+  </center>
 {% endblock %}
