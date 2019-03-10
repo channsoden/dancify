@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 from math import ceil
 
+import numpy as np
 from flask import Blueprint, g, redirect, request, session, url_for, render_template
 from flask_table import Table, Col
 
@@ -31,6 +32,13 @@ track_features = {
     'time_signature': 'Time Signature',
     'valence': 'Valence'
 }
+
+def navpoints(page, pages):
+    down = set(page+1 - np.logspace(0, np.log2(page), num=7, base=2).astype(int))
+    up = set(page-1 + np.logspace(0, np.log2(max(1, pages-page)), num=7, base=2).astype(int))
+    around = set([1, max(1, page-1), min(pages, page+1), pages])
+    spread = sorted(list(up | down | around))
+    return spread
 
 @bp.route('/library/<int:page>')
 @spotify_auth.login_required
