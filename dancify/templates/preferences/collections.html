@@ -6,11 +6,11 @@
 
 {% block content %}
   <form method="post">
-    {% for internal, display in track_features.items() %}
-    {% if internal in g.preferences['collections']['columns'] %}
-    <label><input type="checkbox" name="columns" value="{{ internal }}" checked>{{ display }}</label>
+    {% for feat in track_features %}
+    {% if feat in g.preferences['collections']['columns'] %}
+    <label><input type="checkbox" name="columns" value="{{ feat }}" checked>{{ feat }}</label>
     {% else %}
-    <label><input type="checkbox" name="columns" value="{{ internal }}">{{ display }}</label>
+    <label><input type="checkbox" name="columns" value="{{ feat }}">{{ feat }}</label>
     {% endif %}
     {% endfor %}
     <input type="submit" value="Save">

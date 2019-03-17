@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+import pandas as pd
 from flask import g
 
 def user_info_block(user_dict):
@@ -8,6 +9,7 @@ def user_info_block(user_dict):
     return '{} {}'.format(img_tag.format(photo, name), name)
 
 def sort_tracks(track_dispenser, sort_key=None):
+    # this is slow for large collections
     tracks = track_dispenser['items']
     while track_dispenser['next']:
         track_dispenser = g.sp.next(track_dispenser)
@@ -17,36 +19,40 @@ def sort_tracks(track_dispenser, sort_key=None):
     return tracks
 
 def get_track_info(tracks):
-    if len(tracks) > 100:
-        raise ValueError('Too many tracks to retrieve features. Must be <= 100 tracks.')
     ids = [t['track']['id'] for t in tracks]
-    features = g.sp.audio_features(ids)
+    features = []
+    for i in range(0, len(ids), 100):
+        rqst = g.sp.audio_features(ids[i:i+100])
+        features.extend(rqst)
 
+    df = []
     for track, feats in zip(tracks, features):
         t = {}
-        t['tid'] = track['track']['id']
-        t['timestamp'] = track['added_at']
-        t['title'] = track['track']['name']
-        t['artist'] = ', '.join([artist['name'] for artist in track['track']['artists']])
-        t['album'] = track['track']['album']['name']
-        t['release'] = track['track']['album']['release_date']
-        t['popularity'] = track['track']['popularity']
+        t['ID'] = track['track']['id']
+        t['Added'] = track['added_at']
+        t['Track'] = track['track']['name']
+        t['Artist'] = ', '.join([artist['name'] for artist in track['track']['artists']])
+        t['Album'] = track['track']['album']['name']
+        t['Release'] = track['track']['album']['release_date']
+        t['Popularity'] = track['track']['popularity']
 
-        t['acousticness'] = feats['acousticness']
-        t['danceability'] = feats['danceability']
-        t['duration'] = feats['duration_ms']
-        t['energy'] = feats['energy']
-        t['instrumentalness'] = feats['instrumentalness']
-        t['key'] = feats['key']
-        t['liveness'] = feats['liveness']
-        t['loudness'] = feats['loudness']
-        t['mode'] = feats['mode']
-        t['speechiness'] = feats['speechiness']
-        t['tempo'] = feats['tempo']
-        t['time_signature'] = feats['time_signature']
-        t['valence'] = feats['valence']
+        t['Acousticness'] = feats['acousticness']
+        t['Danceability'] = feats['danceability']
+        t['Duration'] = feats['duration_ms']
+        t['Energy'] = feats['energy']
+        t['Instrumentalness'] = feats['instrumentalness']
+        t['Key'] = feats['key']
+        t['Liveness'] = feats['liveness']
+        t['Loudness'] = feats['loudness']
+        t['Mode'] = feats['mode']
+        t['Speechiness'] = feats['speechiness']
+        t['Tempo'] = feats['tempo']
+        t['Time Signature'] = feats['time_signature']
+        t['Valence'] = feats['valence']
 
-        yield t
+        df.append(t)
+        
+    return pd.DataFrame(df)
 
 ##Binary features (value represents confidence. these tend to be bimodal.)
 # acousticness

@@ -1,7 +1,16 @@
 Flask
 flask_table
 spotipy
+numpy
+#
+# google sheets
 google-api-python-client
 google-auth-httplib2
 google-auth-oauthlib
-numpy
+#
+#dash
+dash==0.39.0
+dash-html-components==0.14.0
+dash-core-components==0.44.0
+dash-table==3.6.0
+dash-daq==0.1.0

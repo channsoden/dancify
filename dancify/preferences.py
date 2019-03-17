@@ -25,7 +25,7 @@ def load_preferences():
         # Set some defaults for this new session.
         g.preferences = {
             'collections': {
-                'columns': ['title', 'artist', 'album', 'timestamp']
+                'columns': ['Track', 'Artist', 'Album', 'Added']
             }
         }
     else:
