@@ -5,8 +5,12 @@
   <h1>Dancify</h1>
   <ul>
     {% if g.user %}
-      <li><span><img src="{{ g.user['images'][0]['url'] }}" alt="{{ g.user['display_name'] }}" height="50" width="50"> 
-	{{ g.user['display_name'] }}</span>
+      {% if g.user['images'] %}
+        <li><span><img src="{{ g.user['images'][0]['url'] }}" alt="{{ g.user['display_name'] }}" height="50" width="50">
+      {% else %}
+	<li><span><img src="/static/images/user.jpg" alt="{{ g.user['display_name'] }}" height="50" width="50">
+      {% endif %}
+      {{ g.user['display_name'] }}</span>
       <li><a href="{{ url_for('auth.logout') }}">Log Out</a>
       <li><a href="{{ url_for('collections.playlists') }}">Playlists</a>
       <li><a href="{{ url_for('collections.library', page=1) }}">Library</a>

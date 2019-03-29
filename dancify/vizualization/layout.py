@@ -1,27 +1,21 @@
-import numpy as np
-
+from flask import g
 import dash_core_components as dcc
 import dash_html_components as html
 
-example_layout = html.Div([
-    html.H1('Collection'),
-    dcc.Dropdown(
-        id='my-dropdown',
-        options=[
-            {'label': 'Coke', 'value': 'COKE'},
-            {'label': 'Tesla', 'value': 'TSLA'},
-            {'label': 'Apple', 'value': 'AAPL'}
-        ],
-        value='COKE'
-    ),
-    dcc.Graph(id='my-graph')
-], style={'width': '500'})
+from dancify.vizualization import elements
 
 
-layout = html.Div([dcc.Location(id='url', refresh=False),
-                   html.Div(id='page-content')
-])
+def collection():
+    content = [dcc.Location(id='url', refresh=False),
+               html.Div(id='page-header')]
 
+    for graph in elements.graphs:
+        content.append( html.Div(id=graph+'_hist') )
+        content.append( html.Div(id=graph+'_slider') )
 
+    content.append( html.Div(id='table') )
+    content.append( html.Div(id='hidden-data', style={'display': 'none'}) )
+    content.append( html.Div(id='preferences', style={'display': 'none'}) )
 
-    
+    return html.Div(content)
+

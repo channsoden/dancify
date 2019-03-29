@@ -2,6 +2,8 @@ Flask
 flask_table
 spotipy
 numpy
+pandas
+pandas-datareader
 #
 # google sheets
 google-api-python-client

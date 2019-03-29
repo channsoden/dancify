@@ -51,7 +51,7 @@ def create_app(test_config=None):
 
 
 def register_dashapps(app):
-    from dancify.vizualization.layout import layout
+    from dancify.vizualization import layout
     from dancify.vizualization.callbacks import register_callbacks
 
     # Meta tags for viewport responsiveness
@@ -64,7 +64,7 @@ def register_dashapps(app):
                                meta_tags=[meta_viewport])
 
     collection_viz.title = 'Collection Viz'
-    collection_viz.layout = layout
+    collection_viz.layout = layout.collection
     register_callbacks(collection_viz)
     #_protect_dashviews(collection_viz) # should figure another way to do login required
 
