@@ -10,8 +10,14 @@ def collection():
                html.Div(id='page-header')]
 
     for graph in elements.graphs:
-        content.append( html.Div(id=graph+'_hist') )
-        content.append( html.Div(id=graph+'_slider') )
+        pair = html.Div([html.Div(id=graph+'_hist',
+                                  style = {'background': elements.color_scheme['dGray']}),
+                         html.Div(id=graph+'_slider',
+                                  style = {'margin-bottom': 30}) ],
+                        style = {'align': 'center'})#,
+        #className = 'four columns' )
+        #style = {'padding': 40} )
+        content.append(pair)
 
     content.append( html.Div(id='table') )
     content.append( html.Div(id='hidden-data', style={'display': 'none'}) )

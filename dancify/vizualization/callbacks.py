@@ -87,13 +87,10 @@ def register_histogram(dashapp, hist):
         columns = json.loads(preferences)
         view = collection[hist]
         if slider_value:
-            report = html.H2('Slider at: {}, {}'.format(*slider_value))
             view = view.loc[(view >= slider_value[0]) & (view <= slider_value[1])]
-        else:
-            report = html.H2('No slider value: {}'.format(slider_value))
         graph = elements.hist(hist, view)
         if hist in columns:
-            return html.Div( [report, graph] )
+            return html.Div( [graph] )
         else:
             return html.Div( [graph], style={'display': 'none'} )
 
@@ -114,12 +111,8 @@ def register_table(dashapp):
         view = collection
         for col, slider in zip(elements.graphs, sliders):
             if slider:
-                print('filtering on', col)
                 view = view.loc[(view[col] >= slider[0]) & (view[col] <= slider[1])]
-                print(view[col])
-                print(len(view.to_dict("rows")))
-                print(slider[0], type(slider[0]), slider[1], type(slider[1]))
-                
+                                
         table = dt.DataTable(id='table',
                              columns=[{"name": i, "id": i} for i in columns],
                              data=view.to_dict("rows"),

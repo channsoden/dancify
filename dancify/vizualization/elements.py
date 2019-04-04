@@ -29,11 +29,15 @@ steps = {'Duration': 15,
          'Liveness': .05,
          'Speechiness': .05}
 
+slider_marks = {'font-size': 16, 'color': color_scheme['offwhite']}  
+
 def mark_all(Min, Max, step):
     try:
-        return {x: str(x) for x in range(Min, Max, step)}
+        return {x: {'label': str(x), 'style': slider_marks}
+                for x in range(Min, Max, step)}
     except:
-        return {x: '{:.2f}'.format(x) for x in np.arange(Min, Max, step)}
+        return {x: {'label': '{:.2f}'.format(x), 'style': slider_marks}
+                for x in np.arange(Min, Max, step)}
 
 def slider(name, data):
     step = steps[name]
@@ -48,6 +52,8 @@ def slider(name, data):
                            value=[slider_min, slider_max],
                            marks=mark_all(slider_min, slider_max, step))
 
+graph_font = {'size': 16, 'color': color_scheme['offwhite']}
+
 def hist(name, xvalues):
     return dcc.Graph(figure={'data': [{'x': xvalues,
                                        'name': name,
@@ -56,7 +62,15 @@ def hist(name, xvalues):
                              'layout': {'autosize':False,
                                         'width': 500,
                                         'height': 500,
-                                        'yaxis': {'title': name}} })
+                                        'yaxis': {'title': name,
+                                                  'titlefont': {'size': 20,
+                                                                'color': color_scheme['offwhite']},
+                                                  'ticks': '',
+                                                  'showticklabels': False},
+                                        'xaxis': {'tickcolor': color_scheme['offwhite'],
+                                                  'tickfont': graph_font },
+                                        'plot_bgcolor': color_scheme['dGray'],
+                                        'paper_bgcolor': color_scheme['dGray']} })
 
 table_style = {'filtering': False,
                'sorting': False,
