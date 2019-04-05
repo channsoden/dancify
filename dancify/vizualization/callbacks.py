@@ -13,26 +13,6 @@ import dash_table as dt
 
 from dancify import spotify_auth, spotipy_fns
 from dancify.vizualization import elements, layout
-
-
-def get_collection(pathname):
-    pathname = pathname.strip('/').split('/')[1:]
-
-    if pathname[0] == 'library':
-        track_dispenser = g.sp.current_user_saved_tracks()
-        collection_name = 'Library'
-    else:
-        uid, plid = pathname[:2]
-        pl = g.sp.user_playlist(uid, playlist_id=plid)
-        track_dispenser = pl['tracks']
-        collection_name = pl['name']
-
-    tracks = spotipy_fns.sort_tracks(track_dispenser, sort_key=None)
-    tracks = spotipy_fns.get_track_info(tracks)
-    tracks['Release'] = pd.to_datetime(tracks['Release']).dt.year
-    tracks['Duration'] = tracks['Duration'] / 1000 # convert to seconds
-    
-    return collection_name, tracks
     
 def register_callbacks(dashapp):
     dashapp.config['suppress_callback_exceptions'] = True
@@ -42,21 +22,38 @@ def register_callbacks(dashapp):
                        Output('hidden-data', 'children'),
                        Output('preferences', 'children')],
                       [Input('url', 'pathname')])
-    def configure_layout(pathname):
+    def load_collection(pathname):
         columns = g.preferences['collections']['columns']
 
         # This step is expensive, since it must wait for responses from Spotify.
-        collection_name, collection = get_collection(pathname)
+        pathname = pathname.strip('/').split('/')[1:]
+
+        if pathname[0] == 'library':
+            track_dispenser = g.sp.current_user_saved_tracks()
+            collection_name = 'Library'
+        else:
+            uid, plid = pathname[:2]
+            pl = g.sp.user_playlist(uid, playlist_id=plid)
+            track_dispenser = pl['tracks']
+            collection_name = pl['name']
+
+        tracks = spotipy_fns.sort_tracks(track_dispenser, sort_key=None)
+        collection = spotipy_fns.get_track_info(tracks)
+        collection['Release'] = pd.to_datetime(collection['Release']).dt.year
+        collection['Duration'] = collection['Duration'] / 1000 # convert to seconds
 
         return (html.H1(collection_name),
                 collection.to_json(date_format='iso', orient='split'),
                 json.dumps(columns))
 
     for hist in elements.graphs:
+        # Each slider is configured to entire collection.
         register_slider(dashapp, hist)
-        register_histogram(dashapp, hist)
-        
+    # Visible table filtered by sliders.
     register_table(dashapp)
+    for hist in elements.graphs:
+        # Graphs show data from visible table
+        register_histogram(dashapp, hist)
 
 def register_slider(dashapp, hist):
     slider_id = hist+'_slider'
@@ -64,7 +61,7 @@ def register_slider(dashapp, hist):
     @dashapp.callback(Output(slider_id, 'children'),
                       [Input('hidden-data', 'children'),
                        Input('preferences', 'children')])
-    def render_slider(json_data, preferences):
+    def update_slider(json_data, preferences):
         columns = json.loads(preferences)
         if hist not in columns:
             return None
@@ -73,48 +70,42 @@ def register_slider(dashapp, hist):
         slider = elements.slider(hist, collection[hist])
         return slider
 
-
-def register_histogram(dashapp, hist):
-    hist_id = hist+'_hist'
-    slider_id = hist+'_slider'
-    
-    @dashapp.callback(Output(hist_id, 'children'),
-                      [Input(slider_id, 'value'),
-                       Input('hidden-data', 'children'),
-                       Input('preferences', 'children')])
-    def render_hist(slider_value, json_data, preferences):
-        collection = pd.read_json(json_data, orient='split')
-        columns = json.loads(preferences)
-        view = collection[hist]
-        if slider_value:
-            view = view.loc[(view >= slider_value[0]) & (view <= slider_value[1])]
-        graph = elements.hist(hist, view)
-        if hist in columns:
-            return html.Div( [graph] )
-        else:
-            return html.Div( [graph], style={'display': 'none'} )
-
 def register_table(dashapp):
+    inputs = [Input('hidden-data', 'children'),
+              Input('preferences', 'children')]
     slider_ids = [slider+'_slider' for slider in elements.graphs]
-    slider_inputs = [Input(slider_id, 'value') for slider_id in slider_ids]
+    inputs += [Input(slider_id, 'value') for slider_id in slider_ids]
     
-    @dashapp.callback(Output('table', 'children'),
-                      [Input('hidden-data', 'children'),
-                       Input('preferences', 'children')] + \
-                       slider_inputs)
-    def render_table(*inputs):
+    @dashapp.callback([Output('table', 'data'),
+                       Output('table', 'columns')],
+                      inputs)
+    def update_table(*inputs):
         json_data = inputs[0]
         preferences = inputs[1]
         sliders = inputs[2:]
+        
         collection = pd.read_json(json_data, orient='split')
-        columns = json.loads(preferences)
         view = collection
         for col, slider in zip(elements.graphs, sliders):
             if slider:
                 view = view.loc[(view[col] >= slider[0]) & (view[col] <= slider[1])]
-                                
-        table = dt.DataTable(id='table',
-                             columns=[{"name": i, "id": i} for i in columns],
-                             data=view.to_dict("rows"),
-                             **elements.table_style)  
-        return table
+
+        columns = json.loads(preferences)
+        columns = [{"name": c, "id": c} for c in columns]
+
+        return (view.to_dict("rows"), columns)
+
+def register_histogram(dashapp, hist):
+    hist_id = hist+'_hist'
+    
+    @dashapp.callback(Output(hist_id, 'children'),
+                      [Input('table', 'data'),
+                       Input('preferences', 'children')])
+    def update_hist(rows, preferences):
+        columns = json.loads(preferences)
+        if hist in columns:
+            data = pd.DataFrame(rows)
+            graph = elements.hist(hist, data[hist])
+            return html.Div( [graph] )
+        else:
+            return html.Div( [], style={'display': 'none'} )
