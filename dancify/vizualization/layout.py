@@ -24,8 +24,7 @@ def collection():
                                   style = {'background': elements.color_scheme['dGray'],
                                            'align': 'center'}),
                          html.Div(id=graph+'_slider',
-                                  style = {'align': 'center'},
-                                  className='nine columns'),
+                                  style = {'align': 'center'}),
                          html.Br() ],
                         style = {'align': 'center'},
                         className='five columns')
