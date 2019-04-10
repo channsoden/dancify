@@ -33,7 +33,8 @@
     z-index: 1002;
 }*/
 
-/* Grid
+/* Grid     Consider using flexboxes instead of this.
+or even an ACTUAL CSS grid: https://www.smashingmagazine.com/2017/09/css-grid-gotchas-stumbling-blocks/
 –––––––––––––––––––––––––––––––––––––––––––––––––– */
 .container {
   position: relative;
