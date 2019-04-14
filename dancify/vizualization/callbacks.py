@@ -46,6 +46,8 @@ def register_callbacks(dashapp):
                 collection.to_json(date_format='iso', orient='split'),
                 json.dumps(columns))
 
+    for field in elements.fields:
+        register_field(dashapp, field)
     for hist in elements.graphs:
         # Each slider is configured to entire collection.
         register_slider(dashapp, hist)
@@ -55,6 +57,25 @@ def register_callbacks(dashapp):
         # Graphs show data from visible table
         register_histogram(dashapp, hist)
 
+def register_field(dashapp, field):
+    broken_id = field+'_broken'
+    label_id = field+'_label'
+    input_id = field+'_input'
+
+    @dashapp.callback([Output(broken_id, 'chidren'),
+                       Output(label_id, 'children'),
+                       Output(input_id, 'children')],
+                      [Input('preferences', 'children')])
+    def update_field(preferences):
+        fields = json.loads(preferences)
+        if field not in fields:
+            return (None, None, None)
+
+        textbox = dcc.Input(type='text')
+        return (html.H1('Broken element'),
+                field,
+                textbox)
+        
 def register_slider(dashapp, hist):
     slider_id = hist+'_slider'
 
@@ -73,6 +94,8 @@ def register_slider(dashapp, hist):
 def register_table(dashapp):
     inputs = [Input('hidden-data', 'children'),
               Input('preferences', 'children')]
+    field_ids = [field+'_input' for field in elements.fields]
+    inputs += [Input(field_id, 'value') for field_id in field_ids]
     slider_ids = [slider+'_slider' for slider in elements.graphs]
     inputs += [Input(slider_id, 'value') for slider_id in slider_ids]
     
@@ -82,10 +105,17 @@ def register_table(dashapp):
     def update_table(*inputs):
         json_data = inputs[0]
         preferences = inputs[1]
-        sliders = inputs[2:]
+        fields = inputs[2:5]
+        sliders = inputs[5:]
         
         collection = pd.read_json(json_data, orient='split')
         view = collection
+        for col, field in zip(elements.fields, fields):
+            if field:
+                print()
+                print(field)
+                print()
+                view = view.loc[view[col] == field]
         for col, slider in zip(elements.graphs, sliders):
             if slider:
                 view = view.loc[(view[col] >= slider[0]) & (view[col] <= slider[1])]
@@ -104,8 +134,12 @@ def register_histogram(dashapp, hist):
     def update_hist(rows, preferences):
         columns = json.loads(preferences)
         if hist in columns:
-            data = pd.DataFrame(rows)
-            graph = elements.hist(hist, data[hist])
-            return html.Div( [graph] )
+            try:
+                data = pd.DataFrame(rows)
+                graph = elements.hist(hist, data[hist])
+                return html.Div( [graph] )
+            except KeyError:
+                # The table probably isn't loaded yet.
+                html.Div( [], style={'display': 'none'} )
         else:
             return html.Div( [], style={'display': 'none'} )

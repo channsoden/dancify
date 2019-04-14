@@ -9,6 +9,8 @@ color_scheme = {'offwhite': '#dedede',
                 'dGray': '#404040',
                 'green': '#1db954'}
 
+fields = ['Track', 'Artist', 'Album']
+
 graphs = ['Duration', 'Release', 'Popularity', 'Danceability',
          'Energy', 'Tempo', 'Key', 'Loudness', 'Mode',
          'Valence', 'Acousticness', 'Instrumentalness',

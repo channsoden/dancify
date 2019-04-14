@@ -18,14 +18,23 @@ def collection():
                         style = {'text-align': 'right'}),
                html.Div(id='page-header')]
 
+    fields = []
+    for field in elements.fields:
+        pair = html.Div([html.Div(id=field+'_broken'),
+                         html.Div(id=field+'_label'),
+                         html.Div(id=field+'_input')],
+                        className='three columns')
+        fields.append(pair)
+
+    content.append( html.Div(fields, id = 'fields', className = 'twelve columns') )
+        
     graphs = []
     for graph in elements.graphs:
         pair = html.Div([html.Div(id=graph+'_hist',
                                   style = {'background': elements.color_scheme['dGray'],
                                            'align': 'center'}),
                          html.Div(id=graph+'_slider',
-                                  style = {'align': 'center'},
-                                  className='nine columns'),
+                                  style = {'align': 'center'}),
                          html.Br() ],
                         style = {'align': 'center'},
                         className='five columns')
