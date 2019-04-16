@@ -5,7 +5,6 @@ import dash_table as dt
 
 from dancify.vizualization import elements
 
-
 def collection():
     content = [dcc.Location(id='url', refresh=False),
                html.Div([html.A("Logout", href='/auth/logout'),
@@ -18,37 +17,51 @@ def collection():
                         style = {'text-align': 'right'}),
                html.Div(id='page-header')]
 
-    fields = []
-    for field in elements.fields:
-        pair = html.Div([html.Div(id=field+'_broken'),
-                         html.Div(id=field+'_label'),
-                         html.Div(id=field+'_input')],
-                        className='three columns')
-        fields.append(pair)
-
-    content.append( html.Div(fields, id = 'fields', className = 'twelve columns') )
-        
-    graphs = []
-    for graph in elements.graphs:
-        pair = html.Div([html.Div(id=graph+'_hist',
-                                  style = {'background': elements.color_scheme['dGray'],
-                                           'align': 'center'}),
-                         html.Div(id=graph+'_slider',
-                                  style = {'align': 'center'}),
-                         html.Br() ],
-                        style = {'align': 'center'},
-                        className='five columns')
-        graphs.append(pair)
-
-    content.append( html.Div(graphs, id = 'graphs', className = 'twelve columns') )
-
+    content.append( html.Div(id='dynamic-content') )
+    
     table = dt.DataTable(id='table',
                          columns=[{"name": c, "id": c} for c in elements.graphs],
                          **elements.table_style)
-    content.append( html.Div([table], className = 'twelve columns') )
+    content.append( html.Div([table]) )
     
     content.append( html.Div(id='hidden-data', style={'display': 'none'}) )
     content.append( html.Div(id='preferences', style={'display': 'none'}) )
 
     return html.Div(content)
 
+def generate_dynamic_content(columns):
+    fields = [col for col in columns if col in elements.fields]
+    graphs = [col for col in columns if col in elements.graphs]
+    dynamics = html.Div([init_fields(fields), init_graphs(graphs)])
+    return fields, graphs, dynamics
+
+def init_fields(columns):
+    fields = []
+    for field in columns:
+        container_id = field+'_container'
+        input_id = field+'_input'
+        pair = html.Div([field+'  ', dcc.Input(type='text', id=input_id)],
+                        id = container_id,
+                        style = {'display': 'none'})
+        fields.append(pair)
+    fields.append( html.Button(id='update-button', n_clicks=0, children='Update') )
+
+    return html.Div(fields, id = 'fields')
+
+def init_graphs(columns):
+    graphs = []
+    for graph in columns:
+        pair = html.Div([html.Div(id=graph+'_hist',
+                                  style = {'background': elements.color_scheme['dGray'],
+                                           'align': 'center'}),
+                         html.Div(id=graph+'_slider',
+                                  style = {'align': 'center'}),
+                         html.Br() ],
+                        style = {'align': 'center'})
+        graphs.append(pair)
+
+    return html.Div(graphs, id = 'graphs') # , className = 'graphgrid'
+
+    
+
+    

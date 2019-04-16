@@ -2,8 +2,10 @@
 
 from flask import Blueprint, g, redirect, request, session, url_for, render_template
 
-from . import spotify_auth
-from .collections import track_features
+from dancify import spotify_auth
+from dancify.collections import track_features
+
+defaults = {'collections': {'columns': ['Track', 'Artist', 'Album', 'Added'] } }
 
 bp = Blueprint('preferences', __name__, url_prefix='/preferences')
 
@@ -23,10 +25,6 @@ def load_preferences():
     prefs = session.get('preferences')
     if prefs is None:
         # Set some defaults for this new session.
-        g.preferences = {
-            'collections': {
-                'columns': ['Track', 'Artist', 'Album', 'Added']
-            }
-        }
+        g.preferences = defaults
     else:
         g.preferences = prefs
