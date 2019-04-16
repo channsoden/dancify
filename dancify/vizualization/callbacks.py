@@ -23,11 +23,13 @@ def register_callbacks(dashapp):
                        Output('preferences', 'children')],
                       [Input('url', 'pathname')])
     def load_collection(pathname):
+        if not pathname:
+            # Url object has not yet loaded.
+            return (None, None, None, None)
         columns = g.preferences['collections']['columns']
 
         # This step is expensive, since it must wait for responses from Spotify.
         pathname = pathname.strip('/').split('/')[1:]
-
         if pathname[0] == 'library':
             track_dispenser = g.sp.current_user_saved_tracks()
             collection_name = 'Library'
@@ -42,7 +44,7 @@ def register_callbacks(dashapp):
         collection['Release'] = pd.to_datetime(collection['Release']).dt.year
         collection['Duration'] = collection['Duration'] / 1000 # convert to seconds
 
-        fields, graphs, dynamic_layout = layout.generate_dynamic_content(columns)
+        fields, graphs, dynamic_layout = layout.generate_dynamic_content(columns, collection)
 
         for hist in graphs:
             # Each slider is configured to entire collection.
@@ -64,6 +66,8 @@ def register_slider(dashapp, hist):
     @dashapp.callback(Output(slider_id, 'children'),
                       [Input('hidden-data', 'children')])
     def update_slider(json_data):
+        print('updating slider')
+        print(json_data)
         collection = pd.read_json(json_data, orient='split')
         slider = elements.slider(hist, collection[hist])
         return slider
@@ -109,11 +113,8 @@ def register_histogram(dashapp, hist):
     @dashapp.callback(Output(hist_id, 'children'),
                       [Input('table', 'data')])
     def update_hist(rows, preferences):
-        try:
-            data = pd.DataFrame(rows)
-            graph = elements.hist(hist, data[hist])
-            return html.Div( [graph] )
-        except KeyError:
-            # The table probably isn't loaded yet.
-            html.Div( [], style={'display': 'none'} )
+        data = pd.DataFrame(rows)
+        graph = elements.hist(hist, data[hist])
+        return graph
+        
 

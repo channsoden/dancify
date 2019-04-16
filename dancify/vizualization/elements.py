@@ -46,8 +46,7 @@ def slider(name, data):
     slider_min = floor(min(data)/step)*step
     slider_max = ceil(max(data)/step)*step
     
-    return dcc.RangeSlider(id=name+'_slider',
-                           updatemode='mouseup',
+    return dcc.RangeSlider(updatemode='mouseup',
                            min=slider_min,
                            max=slider_max,
                            step=step,

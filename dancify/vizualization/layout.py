@@ -19,20 +19,19 @@ def collection():
 
     content.append( html.Div(id='dynamic-content') )
     
-    table = dt.DataTable(id='table',
-                         columns=[{"name": c, "id": c} for c in elements.graphs],
-                         **elements.table_style)
-    content.append( html.Div([table]) )
-    
     content.append( html.Div(id='hidden-data', style={'display': 'none'}) )
     content.append( html.Div(id='preferences', style={'display': 'none'}) )
 
     return html.Div(content)
 
-def generate_dynamic_content(columns):
+def generate_dynamic_content(columns, df):
     fields = [col for col in columns if col in elements.fields]
     graphs = [col for col in columns if col in elements.graphs]
-    dynamics = html.Div([init_fields(fields), init_graphs(graphs)])
+    table = dt.DataTable(id='table',
+                         columns=[{"name": c, "id": c} for c in elements.graphs],
+                         data=df.to_dict("rows"),
+                         **elements.table_style)
+    dynamics = (init_fields(fields), init_graphs(graphs, df), table)
     return fields, graphs, dynamics
 
 def init_fields(columns):
@@ -41,21 +40,18 @@ def init_fields(columns):
         container_id = field+'_container'
         input_id = field+'_input'
         pair = html.Div([field+'  ', dcc.Input(type='text', id=input_id)],
-                        id = container_id,
-                        style = {'display': 'none'})
+                        id = container_id)
         fields.append(pair)
+        fields.append(html.Br())
     fields.append( html.Button(id='update-button', n_clicks=0, children='Update') )
 
     return html.Div(fields, id = 'fields')
 
-def init_graphs(columns):
+def init_graphs(columns, df):
     graphs = []
     for graph in columns:
-        pair = html.Div([html.Div(id=graph+'_hist',
-                                  style = {'background': elements.color_scheme['dGray'],
-                                           'align': 'center'}),
-                         html.Div(id=graph+'_slider',
-                                  style = {'align': 'center'}),
+        pair = html.Div([html.Div([elements.hist(graph, df[graph])], id=graph+'_hist'),
+                         html.Div([elements.slider(graph, df[graph])], id=graph+'_slider'),
                          html.Br() ],
                         style = {'align': 'center'})
         graphs.append(pair)
