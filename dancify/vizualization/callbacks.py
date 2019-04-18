@@ -14,7 +14,7 @@ from dancify import spotify_auth, spotipy_fns
 from dancify.vizualization import elements, layout
     
 def register_callbacks(dashapp):
-    dashapp.config['suppress_callback_exceptions'] = True
+    dashapp.config['suppress_callback_exceptions'] = False
 
     @spotify_auth.login_required
     @dashapp.callback([Output('page-header', 'children'),
@@ -27,7 +27,7 @@ def register_callbacks(dashapp):
             # Url object has not yet loaded.
             return (None, None, None, None)
         columns = g.preferences['collections']['columns']
-
+        
         # This step is expensive, since it must wait for responses from Spotify.
         pathname = pathname.strip('/').split('/')[1:]
         if pathname[0] == 'library':
@@ -44,45 +44,49 @@ def register_callbacks(dashapp):
         collection['Release'] = pd.to_datetime(collection['Release']).dt.year
         collection['Duration'] = collection['Duration'] / 1000 # convert to seconds
 
-        fields, graphs, dynamic_layout = layout.generate_dynamic_content(columns, collection)
+        dynamic_layout = layout.generate_dynamic_content(columns)
 
-        for hist in graphs:
-            # Each slider is configured to entire collection.
-            register_slider(dashapp, hist)
-        # Visible table filtered by sliders and search fields.
-        register_table(dashapp, fields, graphs)
-        for hist in graphs:
-            # Graphs show data from visible table
-            register_histogram(dashapp, hist)
-        
         return (html.H1(collection_name),
                 dynamic_layout,
                 collection.to_json(date_format='iso', orient='split'),
                 json.dumps(columns))
+
+    for hist in elements.graphables:
+        # Each slider is configured to entire collection.
+        register_slider(dashapp, hist)
+    # Visible table filtered by sliders and search fields.
+    register_table(dashapp)
+    for hist in elements.graphables:
+        # Graphs show data from visible table
+        register_histogram(dashapp, hist)
         
 def register_slider(dashapp, hist):
     slider_id = hist+'_slider'
 
-    @dashapp.callback(Output(slider_id, 'children'),
+    @dashapp.callback([Output(slider_id, 'min'),
+                       Output(slider_id, 'max'),
+                       Output(slider_id, 'value'),
+                       Output(slider_id, 'marks')],
                       [Input('hidden-data', 'children')])
     def update_slider(json_data):
-        print('updating slider')
-        print(json_data)
         collection = pd.read_json(json_data, orient='split')
-        slider = elements.slider(hist, collection[hist])
-        return slider
+        return elements.configure_slider(hist, collection[hist])
 
 def str_contains(series, query):
     query = query.lower()
     return series.str.lower().str.contains(query)
     
-def register_table(dashapp, fields, graphs):
+def register_table(dashapp):
     inputs = [Input('hidden-data', 'children'),
-              Input('update-button', 'n_clicks')]
-    slider_ids = [slider+'_slider' for slider in graphs]
+              Input('update-button', 'n_clicks'),
+              Input('preferences', 'children')]
+    slider_ids = [slider+'_slider' for slider in elements.graphables]
     inputs += [Input(slider_id, 'value') for slider_id in slider_ids]
-    field_ids = [field+'_input' for field in fields]
+    field_ids = [field+'_input' for field in elements.filterables]
     states = [State(field_id, 'value') for field_id in field_ids]
+
+    print('table registering')
+    input()
     
     @dashapp.callback([Output('table', 'data'),
                        Output('table', 'columns')],
@@ -91,18 +95,24 @@ def register_table(dashapp, fields, graphs):
     def update_table(*args):
         json_data = args[0]
         nclicks = args[1]
-        slider_values = args[2:2+len(graphs)]
-        field_values = args[2+len(graphs):]
-                
+        preferences = args[2]
+        slider_values = args[3:3+len(elements.graphables)]
+        field_values = args[3+len(elements.graphables):]
+
+        columns = json.loads(preferences)
+        print('update table sees these columns:')
+        print(columns)
+        input()
+        
         collection = pd.read_json(json_data, orient='split')
         view = collection
-        for col, val in zip(fields, field_values):
+        for col, val in zip(elements.filterables, field_values):
             if val:
                 view = view.loc[str_contains(view[col], val)]
-        for col, val in zip(graphs, slider_values):
-            view = view.loc[(view[col] >= val[0]) & (view[col] <= val[1])]
+        for col, val in zip(elements.graphables, slider_values):
+            if col in columns:
+                view = view.loc[(view[col] >= val[0]) & (view[col] <= val[1])]
 
-        columns = fields + graphs
         columns = [{"name": c, "id": c} for c in columns]
 
         return (view.to_dict("rows"), columns)
@@ -110,11 +120,15 @@ def register_table(dashapp, fields, graphs):
 def register_histogram(dashapp, hist):
     hist_id = hist+'_hist'
     
-    @dashapp.callback(Output(hist_id, 'children'),
+    @dashapp.callback(Output(hist_id, 'figure'),
                       [Input('table', 'data')])
-    def update_hist(rows, preferences):
-        data = pd.DataFrame(rows)
-        graph = elements.hist(hist, data[hist])
-        return graph
+    def update_hist(rows):
+        collection = pd.DataFrame(rows)
+        try:
+            new_figure = elements.hist(hist, collection[hist])
+            return new_figure
+        except KeyError:
+            # This feature is deselected in preferences, so doesn't appear in the table.
+            return None
         
 

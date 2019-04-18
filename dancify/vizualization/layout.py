@@ -1,7 +1,6 @@
 from flask import g
 import dash_core_components as dcc
 import dash_html_components as html
-import dash_table as dt
 
 from dancify.vizualization import elements
 
@@ -18,21 +17,35 @@ def collection():
                html.Div(id='page-header')]
 
     content.append( html.Div(id='dynamic-content') )
-    
+    content.append( elements.filtered_table )
     content.append( html.Div(id='hidden-data', style={'display': 'none'}) )
     content.append( html.Div(id='preferences', style={'display': 'none'}) )
+    hidden_components = list(elements.fields.values()) + \
+                        list(elements.sliders.values()) + \
+                        list(elements.graphs.values()) + \
+                        [elements.update_button]
+    content.append( html.Div(hidden_components,
+                             id='hidden-components', style={'display': 'none'}) )
 
     return html.Div(content)
 
-def generate_dynamic_content(columns, df):
-    fields = [col for col in columns if col in elements.fields]
-    graphs = [col for col in columns if col in elements.graphs]
-    table = dt.DataTable(id='table',
-                         columns=[{"name": c, "id": c} for c in elements.graphs],
-                         data=df.to_dict("rows"),
-                         **elements.table_style)
-    dynamics = (init_fields(fields), init_graphs(graphs, df), table)
-    return fields, graphs, dynamics
+def generate_dynamic_content(columns):
+    fields = [col for col in columns if col in elements.filterables]
+    field_container = [html.Div([field+'  ',
+                                 elements.fields[field]],
+                                id = field+'_container')
+                       for field in fields]
+    field_container.append( elements.update_button )
+    field_div = html.Div(field_container, id = 'fields')
+    
+    graphs = [col for col in columns if col in elements.graphables]
+    graph_container = [html.Div([elements.graphs[graph],
+                                 elements.sliders[graph]],
+                                id = graph+'_container')
+                       for graph in graphs]
+    graph_div = html.Div(graph_container, id = 'graphs')
+    
+    return (field_div, graph_div)
 
 def init_fields(columns):
     fields = []
@@ -43,7 +56,7 @@ def init_fields(columns):
                         id = container_id)
         fields.append(pair)
         fields.append(html.Br())
-    fields.append( html.Button(id='update-button', n_clicks=0, children='Update') )
+    fields.append(  )
 
     return html.Div(fields, id = 'fields')
 
