@@ -61,10 +61,10 @@ graphs = {name: dcc.Graph(id=name+'_hist')
 
 
 def configure_slider(name, data):
+    step = steps[name]
     slider_min = floor(min(data)/step)*step
     slider_max = ceil(max(data)/step)*step
-    value = [slider_min, slider_max],
-    step = steps[name]
+    value = [slider_min, slider_max]
     marks = mark_all(slider_min, slider_max, step)
     return slider_min, slider_max, value, marks
 
