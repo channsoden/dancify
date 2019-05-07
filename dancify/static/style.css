@@ -13,8 +13,6 @@
 - Spacing
 - Utilities
 - Clearing
-- Media Queries
-- Sliders
 */
 
 /* PLotly.js 
@@ -36,11 +34,35 @@
 /* Grid     Consider using flexboxes instead of this.
 or even an ACTUAL CSS grid: https://www.smashingmagazine.com/2017/09/css-grid-gotchas-stumbling-blocks/
 –––––––––––––––––––––––––––––––––––––––––––––––––– */
+@media only screen and (min-width: 400px) {
+    .graphGrid {
+	display: grid;
+	grid-template-columns: 400px;
+    }
+}
 
-.graphgrid {
-    display: grid;
-    grid-template-columns: 1fr 1fr 1fr;
-    grid-gap: 10px		 
+@media only screen and (min-width: 860px) {
+    .graphGrid {
+	display: grid;
+	grid-template-columns: 400px 400px;
+	grid-column-gap: 60px;
+    }
+}
+
+@media only screen and (min-width: 1320px) {
+    .graphGrid {
+	display: grid;
+	grid-template-columns: 400px 400px 400px;
+	grid-column-gap: 60px;
+    }
+}
+
+@media only screen and (min-width: 1780px) {
+    .graphGrid {
+	display: grid;
+	grid-template-columns: 400px 400px 400px 400px;
+	grid-column-gap: 60px;
+    }
 }
 
 /* Base Styles
@@ -59,13 +81,17 @@ body {
   color: #dedede;
   background: #404040 }
 
+#navigation {
+  text-align: right }
+
 
 /* Typography
 –––––––––––––––––––––––––––––––––––––––––––––––––– */
 h1, h2, h3, h4, h5, h6 {
   margin-top: 0;
   margin-bottom: 0;
-  font-weight: 300; }
+  font-weight: 300;
+  color: #1db954}
 h1 { font-size: 4.5rem; line-height: 1.2;  letter-spacing: -.1rem; margin-bottom: 2rem; }
 h2 { font-size: 3.6rem; line-height: 1.25; letter-spacing: -.1rem; margin-bottom: 1.8rem; margin-top: 1.8rem;}
 h3 { font-size: 3.0rem; line-height: 1.3;  letter-spacing: -.1rem; margin-bottom: 1.5rem; margin-top: 1.5rem;}
@@ -312,35 +338,3 @@ hr {
   content: "";
   display: table;
   clear: both; }
-
-
-/* Media Queries
-–––––––––––––––––––––––––––––––––––––––––––––––––– */
-/*
-Note: The best way to structure the use of media queries is to create the queries
-near the relevant code. For example, if you wanted to change the styles for buttons
-on small devices, paste the mobile query code up in the buttons section and style it
-there.
-*/
-
-
-/* Larger than mobile */
-@media (min-width: 400px) {}
-
-/* Larger than phablet (also point when grid becomes active) */
-@media (min-width: 550px) {}
-
-/* Larger than tablet */
-@media (min-width: 750px) {}
-
-/* Larger than desktop */
-@media (min-width: 1000px) {}
-
-/* Larger than Desktop HD */
-@media (min-width: 1200px) {}
-
-/* Sliders
-–––––––––––––––––––––––––––––––––––––––––––––––––– */
-/*.rc-slider-rail{
-  background: #1db954};
-}*/

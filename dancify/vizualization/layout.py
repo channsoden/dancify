@@ -33,17 +33,25 @@ def generate_dynamic_content(columns):
     fields = [col for col in columns if col in elements.filterables]
     field_container = [html.Div([field+'  ',
                                  elements.fields[field]],
-                                id = field+'_container')
+                                id = field+'_container',
+                                style = {'padding': 5})
                        for field in fields]
-    field_container.append( elements.update_button )
-    field_div = html.Div(field_container, id = 'fields')
+    field_div = html.Div([html.Div(field_container, id = 'fields',
+                                   className = 'graphGrid'),
+                          elements.update_button])
     
     graphs = [col for col in columns if col in elements.graphables]
     graph_container = [html.Div([elements.graphs[graph],
-                                 elements.sliders[graph]],
-                                id = graph+'_container')
+                                 html.Div([elements.sliders[graph]],
+                                          style = {'width': 275,
+                                                   'margin-left': 50,
+                                                   'margin-right':25})],
+                                id = graph+'_container',
+                                style = {'marginBottom': 25})
                        for graph in graphs]
-    graph_div = html.Div(graph_container, id = 'graphs')
+    graph_div = html.Div(graph_container, id = 'graphs',
+                         style = {'marginBottom':75},
+                         className = 'graphGrid')
     
     return (field_div, graph_div)
 

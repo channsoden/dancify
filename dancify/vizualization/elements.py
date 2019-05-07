@@ -18,9 +18,12 @@ graphables = ['Duration', 'Release', 'Popularity', 'Danceability',
               'Liveness', 'Speechiness']
 
 # Text field input elements
-fields = {name: dcc.Input(type='text', id=name+'_input')
+fields = {name: dcc.Input(type='text', id=name+'_input', size=30,
+                          style = {'font-size': 22,
+                                   'color': color_scheme['offwhite']})
           for name in filterables}
-update_button = html.Button(id='update-button', n_clicks=0, children='Update')
+update_button = html.Button(id='update-button', n_clicks=0, children='Update',
+                            style = {'color': color_scheme['green']})
 
 # Slider elements
 steps = {'Duration': 15,
@@ -38,15 +41,24 @@ steps = {'Duration': 15,
          'Liveness': .05,
          'Speechiness': .05}
 
-slider_marks = {'font-size': 16, 'color': color_scheme['offwhite']}  
-
 def mark_all(Min, Max, step):
+    if (Max - Min) / step > 12:
+        slider_marks = {'font-size': 12,
+                        'color': color_scheme['offwhite'],
+                        'writing-mode': 'vertical-rl'}
+    elif (Max - Min) / step > 8:
+        slider_marks = {'font-size': 16,
+                        'color': color_scheme['offwhite'],
+                        'writing-mode': 'vertical-rl'}
+    else:
+        slider_marks = {'font-size': 16,
+                        'color': color_scheme['offwhite']}
     try:
         return {x: {'label': str(x), 'style': slider_marks}
-                for x in range(Min, Max, step)}
+                for x in range(Min, Max+int(step/2), step)}
     except:
         return {x: {'label': '{:.2f}'.format(x), 'style': slider_marks}
-                for x in np.arange(Min, Max, step)}
+                for x in np.arange(Min, Max+step/2, step)}
 
 sliders = {name: dcc.RangeSlider(id=name+'_slider',
                                  updatemode='mouseup',
@@ -65,7 +77,7 @@ def configure_slider(name, data):
     slider_min = floor(min(data)/step)*step
     slider_max = ceil(max(data)/step)*step
     value = [slider_min, slider_max]
-    marks = mark_all(slider_min, slider_max, step)
+    marks = mark_all(slider_min, slider_max, step*2)
     return slider_min, slider_max, value, marks
 
 def hist(name, xvalues):
@@ -74,8 +86,8 @@ def hist(name, xvalues):
                       'type': 'histogram',
                       'marker': {'color': color_scheme['green']} }],
             'layout': {'autosize':False,
-                       'width': 500,
-                       'height': 500,
+                       'width': 400,
+                       'height': 400,
                        'yaxis': {'title': name,
                                  'titlefont': {'size': 20,
                                                'color': color_scheme['offwhite']},
