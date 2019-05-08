@@ -11,7 +11,7 @@ color_scheme = {'offwhite': '#dedede',
                 'dGray': '#404040',
                 'green': '#1db954'}
 
-filterables = ['Track', 'Artist', 'Album']
+filterables = ['Track', 'Artist', 'Album', 'Tags']
 graphables = ['Duration', 'Release', 'Popularity', 'Danceability',
               'Energy', 'Tempo', 'Key', 'Loudness', 'Mode',
               'Valence', 'Acousticness', 'Instrumentalness',
@@ -22,8 +22,14 @@ fields = {name: dcc.Input(type='text', id=name+'_input', size=30,
                           style = {'font-size': 22,
                                    'color': color_scheme['offwhite']})
           for name in filterables}
-update_button = html.Button(id='update-button', n_clicks=0, children='Update',
-                            style = {'color': color_scheme['green']})
+update_button = html.Button(id='update-button', n_clicks=0, children='Update')
+
+# Controls for adding tags
+add_tag_button = html.Button(id='add-tag-button', n_clicks=0, children='Add Tag')
+remove_tag_button = html.Button(id='remove-tag-button', n_clicks=0, children='Remove Tag')
+tag_field = dcc.Input(type='text', id='tag-input', size=30,
+                          style = {'font-size': 22,
+                                   'color': color_scheme['offwhite']})
 
 # Slider elements
 steps = {'Duration': 15,
@@ -104,7 +110,7 @@ filtered_table = dt.DataTable(id='table',
                               columns=[{"name": c, "id": c} for c in columns],
                               filtering = False,
                               sorting = False,
-                              sorting_type = 'multi',
+                              row_selectable = False,
                               style_table = {'overflowX': 'scroll'},
                               style_as_list_view = True,
                               style_cell = {'minWidth': '0px',

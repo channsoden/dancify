@@ -10,8 +10,8 @@ from . import spotify_auth
 
 bp = Blueprint('collections', __name__)
 
-track_features = ['ID', 'Track', 'Artist', 'Album', 'Duration',
-                  'Added', 'Release', 'Popularity',
+track_features = ['ID', 'Track', 'Artist', 'Album', 'Tags',
+                  'Duration', 'Added', 'Release', 'Popularity',
                   'Danceability', 'Energy', 'Tempo', 'Time Signature',
                   'Key', 'Loudness', 'Mode', 'Valence',
                   'Acousticness', 'Instrumentalness', 'Liveness', 'Speechiness']

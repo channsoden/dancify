@@ -17,9 +17,20 @@ def collection():
                html.Div(id='page-header')]
 
     content.append( html.Div(id='dynamic-content') )
+
+    tag_controls = html.Div([elements.add_tag_button,
+                             '  ',
+                             elements.remove_tag_button,
+                             '  ',
+                             elements.tag_field],
+                            id='tag-controls',
+                            style = {'marginBottom': 10})
+    content.append( tag_controls )
+    
     content.append( elements.filtered_table )
     content.append( html.Div(id='hidden-data', style={'display': 'none'}) )
     content.append( html.Div(id='preferences', style={'display': 'none'}) )
+    content.append( html.Div(id='tags', style={'display': 'none'}) )
     hidden_components = list(elements.fields.values()) + \
                         list(elements.sliders.values()) + \
                         list(elements.graphs.values()) + \

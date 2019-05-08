@@ -15,7 +15,7 @@ def register_dashapp(app):
                         assets_folder=get_root_path(__name__) + '/vizualization/assets/',
                         meta_tags=[meta_viewport])
 
-    dashapp.title = 'Collection Viz'
+    dashapp.title = 'Dancify'
     dashapp.layout = layout.collection()
     register_callbacks(dashapp)
 
