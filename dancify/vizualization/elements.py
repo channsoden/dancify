@@ -17,12 +17,21 @@ graphables = ['Duration', 'Release', 'Popularity', 'Danceability',
               'Valence', 'Acousticness', 'Instrumentalness',
               'Liveness', 'Speechiness']
 
+# Instructions
+field_instructions = html.Div([html.P('Separate multiple search terms with commas. '
+                                      'Terms beginning with “+” MUST be present in '
+                                      'all tracks. Terms beginning with “-” CANNOT '
+                                      'be present in any tracks (overrides “+”).'),
+                               html.P('E.g. “blood, sugar, -sex, +magik” finds all '
+                                      'tracks containing “magik”, but not “sex”, '
+                                      'and either “blood” or “sugar”.')])
+
 # Text field input elements
 fields = {name: dcc.Input(type='text', id=name+'_input', size=30,
                           style = {'font-size': 22,
                                    'color': color_scheme['offwhite']})
           for name in filterables}
-update_button = html.Button(id='update-button', n_clicks=0, children='Update')
+update_button = html.Button(id='update-button', n_clicks=0, children='Search')
 
 # Controls for adding tags
 add_tag_button = html.Button(id='add-tag-button', n_clicks=0, children='Add Tag')

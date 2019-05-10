@@ -1,21 +1,17 @@
 from datetime import datetime as dt
-from collections import defaultdict
 import json
 
 from flask import g
 
 import pandas as pd
-import pandas_datareader as pdr
 from dash.dependencies import Input, Output, State
 import dash_core_components as dcc
 import dash_html_components as html
 import dash_table as dt
 
 from dancify import spotify_auth, spotipy_fns
+from dancify.db import get_db
 from dancify.vizualization import elements, layout
-
-# temporary variable to use until I figure out sql
-tags = defaultdict(set)
 
 # Chains of callbacks will throw many TypeError exceptions while they
 # wait for their upstream elements to load.
@@ -55,8 +51,6 @@ def register_callbacks(dashapp):
         
         dynamic_layout = layout.generate_dynamic_content(columns)
 
-        print('loaded collection')
-        
         return (html.H1(collection_name),
                 collection.to_json(date_format='iso', orient='split'),
                 json.dumps(columns),
@@ -121,7 +115,7 @@ def register_table(dashapp):
         collection = pd.read_json(json_data, orient='split')
 
         collection['Tags'] = [', '.join([tag for tag, state in tags[sid].items() if state])
-                        for sid in collection['ID']]
+                              for sid in collection['ID']]
         
         collection = filter_collection(collection, field_values, slider_values, columns)
                 
@@ -133,14 +127,14 @@ def filter_collection(collection, field_values, slider_values, columns):
     for col, val in zip(elements.filterables, field_values):
         if val:
             include, exclude, mandatory = parse_search_terms(val)
+            for term in mandatory:
+                collection = collection.loc[str_contains(collection[col], term)]
+            for term in exclude:
+                collection = collection.loc[~str_contains(collection[col], term)]
             hits = ~collection[col].astype(bool)
             for term in include:
                 hits |= str_contains(collection[col], term)
             collection = collection.loc[hits]
-            for term in exclude:
-                collection = collection.loc[~str_contains(collection[col], term)]
-            for term in mandatory:
-                collection = collection.loc[str_contains(collection[col], term)]
     for col, val in zip(elements.graphables, slider_values):
         if val and (col in columns):
             collection = collection.loc[(collection[col] >= val[0]) & (collection[col] <= val[1])]
@@ -183,7 +177,8 @@ def register_histogram(dashapp, hist):
 
 
 def register_tag_controls(dashapp):
-    @dashapp.callback(Output('tags', 'children'),
+    @dashapp.callback([Output('tags', 'children'),
+                       Output('tag-input', 'value')],
                       [Input('add-tag-button', 'n_clicks_timestamp'),
                        Input('remove-tag-button', 'n_clicks_timestamp'),
                        Input('hidden-data', 'children')],
@@ -191,15 +186,21 @@ def register_tag_controls(dashapp):
                        State('tag-input', 'value'),
                        State('tags', 'children')])
     def update_tags(add_time, remove_time, hidden_data, songs, tag, tags):
+        db = get_db()
+
         if tags:
             tags = json.loads(tags)
         else:
             # Load tags from the DB
             # Tags are stored as dict of booleans since json cannot do sets.
             collection = pd.read_json(hidden_data, orient='split')
-            tags = {ID:{} for ID in collection['ID']}
-
-
+            select = 'SELECT song_id, tag FROM tags WHERE user_id = {} AND song_id in ("{}")'
+            song_IDs = '","'.join(collection['ID'])
+            sql = select.format(g.user['id'], song_IDs)
+            rows = db.execute(sql).fetchall()
+            tags = {song_id:{} for song_id in collection['ID']}
+            for row in rows:
+                tags[row['song_id']][row['tag']] = True
 
         if tag:
             # Validate the tag by removing commas which
@@ -213,20 +214,36 @@ def register_tag_controls(dashapp):
                 add_time = 0
             if not remove_time:
                 remove_time = 0
-                
+
+            # Unfortunately this function will fire when the hidden
+            # data table is updated as well. This should only be
+            # when the page first loads, and as long as it stays
+            # that way it should be fine.
+            
             if add_time > remove_time:
+                insert = 'INSERT OR IGNORE INTO tags (user_id, song_id, tag) VALUES '
+                values = []
                 for song in songs:
                     # Add the tags to the DB
-                    
+                    values.append('("{}", "{}", "{}")'.format(g.user['id'], song['ID'], tag))
                     # And update tags in table.
                     tags[song['ID']][tag] = True
+                sql = insert + ','.join(values)
+                db.execute(sql)
+                db.commit()                    
             if remove_time > add_time:
+                delete = 'DELETE FROM tags WHERE user_id = "{}" AND tag = "{}" AND song_id in ("{}")'
+                song_IDs = []
                 for song in songs:
                     # Remove the tags from the DB
-                    
+                    song_IDs.append(song['ID'])
                     # And update tags in table.
                     tags[song['ID']][tag] = False
+                sql = delete.format(g.user['id'], tag, '","'.join(song_IDs))
+                print(sql)
+                db.execute(sql)
+                db.commit()
                 
-        return json.dumps(tags)
+        return json.dumps(tags), ''
 
     

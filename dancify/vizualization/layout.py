@@ -49,6 +49,7 @@ def generate_dynamic_content(columns):
                        for field in fields]
     field_div = html.Div([html.Div(field_container, id = 'fields',
                                    className = 'graphGrid'),
+                          elements.field_instructions,
                           elements.update_button])
     
     graphs = [col for col in columns if col in elements.graphables]
@@ -58,7 +59,7 @@ def generate_dynamic_content(columns):
                                                    'margin-left': 50,
                                                    'margin-right':25})],
                                 id = graph+'_container',
-                                style = {'marginBottom': 25})
+                                style = {'marginBottom': 30})
                        for graph in graphs]
     graph_div = html.Div(graph_container, id = 'graphs',
                          style = {'marginBottom':75},
