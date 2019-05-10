@@ -5,7 +5,7 @@ from flask import Blueprint, g, redirect, request, session, url_for, render_temp
 from dancify import spotify_auth
 from dancify.collections import track_features
 
-defaults = {'collections': {'columns': ['Track', 'Artist', 'Album', 'Added'] } }
+defaults = {'collections': {'columns': ['Track', 'Artist', 'Tags', 'Danceability', 'Energy', 'Tempo', 'Valence'] } }
 
 bp = Blueprint('preferences', __name__, url_prefix='/preferences')
 

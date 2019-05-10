@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 from math import ceil
+from collections import OrderedDict
 
 import numpy as np
 
@@ -10,11 +11,27 @@ from . import spotify_auth
 
 bp = Blueprint('collections', __name__)
 
-track_features = ['ID', 'Track', 'Artist', 'Album', 'Tags',
-                  'Duration', 'Added', 'Release', 'Popularity',
-                  'Danceability', 'Energy', 'Tempo', 'Time Signature',
-                  'Key', 'Loudness', 'Mode', 'Valence',
-                  'Acousticness', 'Instrumentalness', 'Liveness', 'Speechiness']
+track_features = OrderedDict([('ID', 'ID - Spotify track ID'),
+                              ('Track', 'Track - Track title'),
+                              ('Artist', 'Artist - Artist name/s'),
+                              ('Album', 'Album - Album name'),
+                              ('Tags', 'Tags - Your Dancify tags'),
+                              ('Duration', 'Duration - Track duration in seconds'),
+                              ('Added', 'Added - Date the song was added to the collection'),
+                              ('Release', 'Release - Release date of the track/album'),
+                              ('Popularity', 'Popularity - From 0 (least popular) to 100 (most popular)'),
+                              ('Danceability', 'Danceability - From 0 (least danceable) to 1 (most danceable)'),
+                              ('Energy', 'Energy - From 0 (lowest energy) to 1 (most energy)'),
+                              ('Tempo', 'Tempo - In beats per minute'),
+                              ('Time Signature', 'Time Signature - The number of beats per bar'),
+                              ('Key', 'Key - In Pitch Class notation. 0 is C, 1 is C#/Db, 2 is D, etc.'),
+                              ('Loudness', 'Loudness - Average volume of the track, in dB'),
+                              ('Mode', 'Mode - 0 for Minor, 1 for Major'),
+                              ('Valence', 'Valence - Overall emotion of the track. From 0 (negative) to 1 (positive)'),
+                              ('Acousticness', 'Acousticness - From 0 (least likely to be acoustic) to 1 (most likely to be acoustic)'),
+                              ('Instrumentalness', 'Instrumentalness - From 0 (least likely to be instrumental) to 1 (most likely to be instrumental)'),
+                              ('Liveness', 'Liveness - From 0 (least likely to be live) to 1 (most likely to be live)'),
+                              ('Speechiness', 'Speechiness - From 0 (most likely to be music) to 1 (most likely to be spoken word)')])
 
 def navpoints(page, pages):
     down = set(page+1 - np.logspace(0, np.log2(page), num=7, base=2).astype(int))

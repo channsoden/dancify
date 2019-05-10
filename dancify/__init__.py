@@ -43,7 +43,7 @@ def create_app(test_config=None):
     
     @app.route('/')
     def index():
-        return render_template('base.html')
+        return render_template('welcome.html')
         
     return app
 

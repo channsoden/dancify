@@ -14,6 +14,7 @@
 - Utilities
 - Clearing
 - Sliders
+- Classes
 */
 
 /* PLotly.js 
@@ -32,8 +33,7 @@
     z-index: 1002;
 }*/
 
-/* Grid     Consider using flexboxes instead of this.
-or even an ACTUAL CSS grid: https://www.smashingmagazine.com/2017/09/css-grid-gotchas-stumbling-blocks/
+/* Grid
 –––––––––––––––––––––––––––––––––––––––––––––––––– */
 @media only screen and (min-width: 400px) {
     .graphGrid {
@@ -342,7 +342,6 @@ hr {
 
 /* Sliders mgray
 –––––––––––––––––––––––––––––––––––––––––––––––––– */
-
 .rc-slider-rail {
     background-color: #dedede }
 
@@ -360,3 +359,10 @@ hr {
 .rc-slider-handle {
     background-color: #dedede;
     border: solid 2px #1db954 }
+
+/* Classes
+–––––––––––––––––––––––––––––––––––––––––––––––––– */
+div.narrow {
+    max-width: 800px;
+    margin: 0 auto
+}

@@ -1,11 +1,15 @@
 {% extends 'base.html' %}
 
 {% block header %}
+<div class="narrow">
   <h1>{% block title %}Playlists{% endblock %}</h1>
+</div>
 {% endblock %}
 
 {% block content %}
+<div class="narrow">
   {% for pl in lists %}
     <a href="{{ pl['viz_url'] }}">{{ pl['name'] }}</a><br>
   {% endfor %}
+</div>
 {% endblock %}

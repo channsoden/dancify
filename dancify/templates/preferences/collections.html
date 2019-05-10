@@ -1,18 +1,22 @@
 {% extends 'base.html' %}
 
 {% block header %}
+<div class="narrow">
   <h1>{% block title %}Preferences{% endblock %}</h1>
+</div>
 {% endblock %}
 
 {% block content %}
+<div class="narrow">
   <form method="post">
-    {% for feat in track_features %}
+    {% for feat, description in track_features.items() %}
     {% if feat in g.preferences['collections']['columns'] %}
-    <label><input type="checkbox" name="columns" value="{{ feat }}" checked>{{ feat }}</label>
+    <label><input type="checkbox" name="columns" value="{{ feat }}" checked>{{ description }}</label>
     {% else %}
-    <label><input type="checkbox" name="columns" value="{{ feat }}">{{ feat }}</label>
+    <label><input type="checkbox" name="columns" value="{{ feat }}">{{ description }}</label>
     {% endif %}
     {% endfor %}
     <input type="submit" value="Save">
   </form>
+</div>
 {% endblock %}
