@@ -8,9 +8,9 @@ from . import spotipy_fns, dash_components
 def create_app(test_config=None):
     app = Flask(__name__, instance_relative_config=True)
     app.config.from_mapping(
-        SECRET_KEY='dev',
+        SECRET_KEY=os.getenv('DANCIFY_SECRET_KEY'),
         DATABASE=os.path.join(app.instance_path, 'dancify.sqlite'),
-        SERVER_NAME='localhost:5000',
+        SERVER_NAME='http://dancifydev.appspot.com',
         )
     if test_config is None:
         # load the instance config when not testing
