@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+
+
+
+{% block header %}
+<div class="narrow">
+  <h1>{% block title %}Dancify{% endblock %}</h1>
+<div
+{% endblock %}
+
+{% block content %}
+<div class="narrow">
+    
+  <p>Welcome to Dancify, the app that lets you visualize, filter, and tag your Spotify music collections! To get started log in to your Spotify account by clicking “Log In” at the top right.</p>
+  
+  <p>Dancify is an open source project. Please report bugs and make contributions at http://github.com/channsoden/dancify.</p>
+  
+  <h3>How does Dancify work?</h3>
+  
+  <p>By logging in to Spotify via Dancify, you agree to let Dancify see your Spotify playlists and library. When you view one of your music collections (i.e. a playlist or your library) we retrieve all the track features in that collection from Spotify, then display them back to you. For large collections (like your entire library) it can take a while to get all this data from Spotify, so please be patient while the collection loads.</p>
+  
+  <p>You can set which track features you want to view in your Preferences. It takes a few seconds to load all these graphs (even if you don’t have them set in your preferences), so when you view a collection please wait until the top of the page changes from “Updating...” to “Dancify”.</p>
+  
+  <h3>What data do you collect?</h3>
+  
+  <p>Dancify keeps none of your Spotify data! When you log in, Spotify sends Dancify a key to access your collections. Dancify does not store this key, but gives it back to you as a cookie and asks for it whenever you view a collection. For this reason you will need to enable cookies for Dancify to work.</p>
+  
+  The only data Dancify keeps are the tags which you add to tracks, which are associated with your Spotify ID. I promise never to share these tags with a third party, nor to mine them to sell you things.</p>
+
+</div>
+{% endblock %}
+
+

@@ -3,7 +3,6 @@ flask_table
 spotipy
 numpy
 pandas
-pandas-datareader
 #
 #dash
 dash==0.39.0
