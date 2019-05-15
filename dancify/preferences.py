@@ -27,19 +27,22 @@ def collections():
 
 @bp.before_app_request
 def load_preferences():
-    # Load preferences from DB, setting defaults if necessary.
-    # Store preferences in g
-    conn = get_db()
-    s = select([preferences_table]).where(preferences_table.c.user_id == g.user['id'])
-    result = conn.execute(s).fetchone()
-
-    if result is None:
+    if g.user is None:
         g.preferences = defaults
-        collection_code = encode_preferences(defaults['collections']['columns'], list(track_features.keys()))
-        conn.execute(preferences_table.insert(), {'user_id':g.user['id'], 'collections':collection_code})
     else:
-        prefs = {'collections': {'columns': decode_preferences(result['collections'], list(track_features.keys())) } }
-        g.preferences = prefs
+        # Load preferences from DB, setting defaults if necessary.
+        # Store preferences in g
+        conn = get_db()
+        s = select([preferences_table]).where(preferences_table.c.user_id == g.user['id'])
+        result = conn.execute(s).fetchone()
+        
+        if result is None:
+            g.preferences = defaults
+            collection_code = encode_preferences(defaults['collections']['columns'], list(track_features.keys()))
+            conn.execute(preferences_table.insert(), {'user_id':g.user['id'], 'collections':collection_code})
+        else:
+            prefs = {'collections': {'columns': decode_preferences(result['collections'], list(track_features.keys())) } }
+            g.preferences = prefs
 
 def encode_preferences(prefs, order):
     binary = []
