@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-import os, functools, urllib
+import os, functools
 
 from flask import Blueprint, g, redirect, request, session, url_for, current_app
 

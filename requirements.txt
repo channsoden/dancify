@@ -20,11 +20,11 @@ httplib2==0.12.1
 idna==2.8
 ipython-genutils==0.2.0
 itsdangerous==1.1.0
-Jinja2==2.10
+Jinja2==2.10.1
 jsonschema==3.0.1
 jupyter-core==4.4.0
 lxml==4.3.2
-MarkupSafe==1.1.0
+MarkupSafe==1.1.1
 nbformat==4.4.0
 numpy==1.16.2
 oauthlib==3.0.1
@@ -45,6 +45,5 @@ spotipy==2.4.4
 SQLAlchemy==1.3.3
 traitlets==4.3.2
 uritemplate==3.0.0
-urllib3==1.24.1
 Werkzeug==0.14.1
 wrapt==1.11.1
