@@ -4,6 +4,7 @@ import json
 from flask import g
 
 import pandas as pd
+import numpy as np
 from dash.dependencies import Input, Output, State
 import dash_core_components as dcc
 import dash_html_components as html
@@ -132,7 +133,7 @@ def filter_collection(collection, field_values, slider_values, columns):
                 collection = collection.loc[str_contains(collection[col], term)]
             for term in exclude:
                 collection = collection.loc[~str_contains(collection[col], term)]
-            hits = ~collection[col].astype(bool)
+            hits = np.zeros(len(collection[col])).astype(bool)
             for term in include:
                 hits |= str_contains(collection[col], term)
             collection = collection.loc[hits]
