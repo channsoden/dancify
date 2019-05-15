@@ -1,7 +1,7 @@
 import os
 
 # The secret key is used by Flask to encrypt session cookies.
-SECRET_KEY = 'DEV'#os.getenv('DANCIFY_SECRET_KEY')
+SECRET_KEY = os.getenv('DANCIFY_SECRET_KEY')
 
 # Dancify client id and client secret from Spotify.
 SPOTIFY_CLIENT_ID = os.getenv('SPOTIFY_CLIENT_ID')
