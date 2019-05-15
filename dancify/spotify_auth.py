@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 import os, functools, urllib
 
-from flask import Blueprint, g, redirect, request, session, url_for
+from flask import Blueprint, g, redirect, request, session, url_for, current_app
 
 import spotipy
 from spotipy import oauth2 as sp_oauth2
@@ -10,9 +10,9 @@ authorizer = None
 def init_authorizer():
     global authorizer
     if authorizer is None:
-        # Get client keys from environment
-        client_id = os.getenv('SPOTIFY_CLIENT_ID')
-        client_secret = os.getenv('SPOTIFY_CLIENT_SECRET')
+        # Get client keys from config
+        client_id = current_app.config['SPOTIFY_CLIENT_ID']
+        client_secret = current_app.config['SPOTIFY_CLIENT_SECRET']
 
         # Auth parameters
         scope = "user-library-read playlist-read-private"

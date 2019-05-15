@@ -8,9 +8,10 @@ from dash.dependencies import Input, Output, State
 import dash_core_components as dcc
 import dash_html_components as html
 import dash_table as dt
+from sqlalchemy.sql import select
 
 from dancify import spotify_auth, spotipy_fns
-from dancify.db import get_db
+from dancify.db import get_db, tag_table
 from dancify.vizualization import elements, layout
 
 # Chains of callbacks will throw many TypeError exceptions while they
@@ -186,7 +187,7 @@ def register_tag_controls(dashapp):
                        State('tag-input', 'value'),
                        State('tags', 'children')])
     def update_tags(add_time, remove_time, hidden_data, songs, tag, tags):
-        db = get_db()
+        conn = get_db()
 
         if tags:
             tags = json.loads(tags)
@@ -194,16 +195,15 @@ def register_tag_controls(dashapp):
             # Load tags from the DB
             # Tags are stored as dict of booleans since json cannot do sets.
             collection = pd.read_json(hidden_data, orient='split')
-            select = 'SELECT song_id, tag FROM tags WHERE user_id = {} AND song_id in ("{}")'
-            song_IDs = '","'.join(collection['ID'])
-            sql = select.format(g.user['id'], song_IDs)
-            rows = db.execute(sql).fetchall()
+            s = select([tag_table]).where((tag_table.c.user_id == g.user['id']) &
+                                          (tag_table.c.song_id.in_(list(collection['ID']))))
+            result = conn.execute(s)
             tags = {song_id:{} for song_id in collection['ID']}
-            for row in rows:
+            for row in result:
                 tags[row['song_id']][row['tag']] = True
 
         if tag:
-            # Validate the tag by removing commas which
+            # Canonize the tag by removing commas which
             # will be used in searching as logical and.
             tag = tag.lower().replace(',', '')
 
@@ -221,28 +221,33 @@ def register_tag_controls(dashapp):
             # that way it should be fine.
             
             if add_time > remove_time:
-                insert = 'INSERT OR IGNORE INTO tags (user_id, song_id, tag) VALUES '
-                values = []
+                rows = []
                 for song in songs:
-                    # Add the tags to the DB
-                    values.append('("{}", "{}", "{}")'.format(g.user['id'], song['ID'], tag))
-                    # And update tags in table.
-                    tags[song['ID']][tag] = True
-                sql = insert + ','.join(values)
-                db.execute(sql)
-                db.commit()                    
+                    try:
+                        exists = tags[song['ID']][tag]
+                    except KeyError:
+                        exists = False
+
+                    if not exists:
+                        # Add the tag to the DB.
+                        rows.append({'user_id':g.user['id'], 'song_id':song['ID'], 'tag':tag})
+                        # Update tags in the table.
+                        tags[song['ID']][tag] = True
+
+                conn.execute(tag_table.insert(), rows)
+                
             if remove_time > add_time:
-                delete = 'DELETE FROM tags WHERE user_id = "{}" AND tag = "{}" AND song_id in ("{}")'
                 song_IDs = []
                 for song in songs:
                     # Remove the tags from the DB
                     song_IDs.append(song['ID'])
                     # And update tags in table.
                     tags[song['ID']][tag] = False
-                sql = delete.format(g.user['id'], tag, '","'.join(song_IDs))
-                print(sql)
-                db.execute(sql)
-                db.commit()
+                conn.execute(tag_table.delete().where(
+                    (tag_table.c.user_id == g.user['id']) &
+                    (tag_table.c.tag == tag) &
+                    (tag_table.c.song_id.in_(song_IDs)) )
+                )
                 
         return json.dumps(tags), ''
 

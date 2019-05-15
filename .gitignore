@@ -1,11 +1,10 @@
-app/credentials.json
-app/spotitry.credentials
+app.yaml
 configure_env
-credentials.json
-spotitry.credentials
 venv/
 *.pyc
 *.py~
+*.sh~
+*.html~
 __pycache__/
 instance/
 .pytest_cache/
@@ -14,3 +13,8 @@ htmlcov/
 dist/
 build/
 *.egg-info/
+cloud_sql_proxy
+lib/
+start_db_proxy.sh
+google-cloud-sdk/
+experiments/
