@@ -2,6 +2,8 @@
 
 Dancify is a web app that lets you visualize, filter, and tag your Spotify music collections.
 
+[Try it here!](https://dancifydev.appspot.com/)
+
 ## Data Collection
 
 Dancify keeps no Spotify data. User's authorization tokens are stored as cookies with the user and retrieved upon requests. Dancify only stores user tags and preferences, which are associated with spotify user IDs.
