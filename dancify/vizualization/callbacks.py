@@ -126,7 +126,12 @@ def register_table(dashapp):
                               for sid in collection['ID']]
         
         collection = filter_collection(collection, field_values, slider_values, columns)
-        collection.sort_values(by = [sort_order], inplace = True)
+        if collection[sort_order].dtype == collection['Track'].dtype:
+            # Convert to lower case for sorting
+            collection = collection.iloc[collection[sort_order].str.lower().argsort()]
+        else:
+            # Numbers sort fine.
+            collection.sort_values(by = [sort_order], inplace = True)
                 
         columns = [{"name": c, "id": c} for c in columns]
 

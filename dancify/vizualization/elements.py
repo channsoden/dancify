@@ -29,9 +29,10 @@ field_instructions = html.Div([html.P('Separate multiple search terms with comma
                                       'and either “blood” or “sugar”.')])
 
 # Text field input elements
-fields = {name: dcc.Input(type='text', id=name+'_input', size=30,
+fields = {name: dcc.Input(type='text', id=name+'_input',
                           style = {'font-size': 22,
-                                   'color': color_scheme['offwhite']})
+                                   'width': 400,
+                                   'color': color_scheme['dGray']})
           for name in filterables}
 
 # Sort order menu
@@ -50,15 +51,17 @@ remove_tag_button = html.Button(id='remove-tag-button', n_clicks=0, children='Re
                                 style = {'margin': 5})
 tag_field = dcc.Input(type='text', id='tag-input', size=30,
                           style = {'font-size': 22,
-                                   'color': color_scheme['offwhite']})
+                                   'width': 400,
+                                   'color': color_scheme['dGray']})
 
 # Controls for editing playlists
 save_playlist_button = html.Button(id='save-playlist-button', n_clicks=0, children='Save playlist as',
                                    style = {'margin': 5})
-playlist_field = dcc.Input(type='text', id='playlist-input', size=30,
+playlist_field = dcc.Input(type='text', id='playlist-input',
                            value='Dancify',
                            style = {'font-size': 22,
-                                    'color': color_scheme['offwhite']})
+                                    'width': 400,
+                                    'color': color_scheme['dGray']})
 
 # Slider elements
 steps = {'Duration': 15,
