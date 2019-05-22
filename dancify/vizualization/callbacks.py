@@ -8,7 +8,6 @@ import numpy as np
 from dash.dependencies import Input, Output, State
 import dash_core_components as dcc
 import dash_html_components as html
-import dash_table as dt
 from sqlalchemy.sql import select
 
 from dancify import spotify_auth, spotipy_fns
@@ -268,13 +267,16 @@ def register_tag_controls(dashapp):
         return json.dumps(tags), ''
 
 def register_playlist_controls(dashapp):
-    # Use the null div, since this has not visible output to the user.
-    @dashapp.callback(Output('null', 'children'),
+    @dashapp.callback(Output('save-feedback', 'children'),
                       [Input('save-playlist-button', 'n_clicks_timestamp')],
                       [State('table', 'data'),
                        State('playlist-input', 'value')])
-    def update_tags(save_time, songs, playlist_name):
+    def save_playlist_as(save_time, songs, playlist_name):
         if playlist_name:
             song_ids = [song['ID'] for song in songs]
             spotipy_fns.overwrite_playlist(playlist_name, song_ids)
-        return 'Playlist saved.'
+            time = dt.fromtimestamp(save_time / 1000)
+            return '{} saved at {}:{}:{:02d}.'.format(playlist_name, time.hour, time.minute, time.second)
+        else:
+            return ''
+

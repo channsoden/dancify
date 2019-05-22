@@ -28,7 +28,9 @@ def collection():
                             id='tag-controls')
 
     playlist_controls = html.Div([elements.save_playlist_button,
-                                  elements.playlist_field],
+                                  elements.playlist_field,
+                                  html.Div([], id='save-feedback',
+                                           style={'font-size':10})],
                                  id='playlist-controls')
     
     controls = html.Div([sort_controls, tag_controls, playlist_controls],
