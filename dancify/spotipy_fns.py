@@ -74,3 +74,26 @@ def get_track_info(tracks):
 # tempo (BPM)
 # time_signature
 # duration
+
+def overwrite_playlist(playlist_name, tracks):
+    playlist = get_user_playlist(playlist_name)
+    if not playlist:
+        playlist = g.sp.user_playlist_create(g.user['id'],
+                                             playlist_name,
+                                             public = False,
+                                             description = 'Made by Dancify.')
+
+    snapshot = g.sp.user_playlist_replace_tracks(g.user['id'], playlist['id'], tracks)
+
+def get_user_playlist(playlist_name):
+    list_dispenser = g.sp.current_user_playlists()
+    lists = list_dispenser['items']
+    while list_dispenser['next']:
+        list_dispenser = g.sp.next(list_dispenser)
+        lists.extend(list_dispenser['items'])
+
+    for l in lists:
+        if (l['name'] == playlist_name) and (l['owner']['id'] == g.user['id']):
+            return l
+
+    return None

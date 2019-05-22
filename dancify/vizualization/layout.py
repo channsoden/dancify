@@ -17,15 +17,21 @@ def collection():
                html.Div(id='page-header')]
 
     content.append( html.Div(id='dynamic-content') )
-
+    
     tag_controls = html.Div([elements.add_tag_button,
-                             '  ',
                              elements.remove_tag_button,
-                             '  ',
                              elements.tag_field],
-                            id='tag-controls',
-                            style = {'marginBottom': 10})
-    content.append( tag_controls )
+                            id='tag-controls')
+
+    playlist_controls = html.Div([elements.save_playlist_button,
+                                  elements.playlist_field],
+                                 id='playlist-controls')
+    
+    controls = html.Div([tag_controls, playlist_controls],
+                        id='controls',
+                        className = 'graphGrid',
+                        style = {'marginBottom': 10})
+    content.append( controls )
     
     content.append( elements.filtered_table )
     content.append( html.Div(id='hidden-data', style={'display': 'none'}) )
@@ -34,7 +40,8 @@ def collection():
     hidden_components = list(elements.fields.values()) + \
                         list(elements.sliders.values()) + \
                         list(elements.graphs.values()) + \
-                        [elements.update_button]
+                        [elements.update_button,
+                         html.Div([], id='null')] # This is a null container for buttons that have no output.
     content.append( html.Div(hidden_components,
                              id='hidden-components', style={'display': 'none'}) )
 

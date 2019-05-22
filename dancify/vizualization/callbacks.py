@@ -68,6 +68,7 @@ def register_callbacks(dashapp):
     for hist in elements.graphables:
         # Graphs show data from visible table
         register_histogram(dashapp, hist)
+    register_playlist_controls(dashapp)
 
         
 def register_slider(dashapp, hist):
@@ -252,4 +253,14 @@ def register_tag_controls(dashapp):
                 
         return json.dumps(tags), ''
 
-    
+def register_playlist_controls(dashapp):
+    # Use the null div, since this has not visible output to the user.
+    @dashapp.callback(Output('null', 'children'),
+                      [Input('save-playlist-button', 'n_clicks_timestamp')],
+                      [State('table', 'data'),
+                       State('playlist-input', 'value')])
+    def update_tags(save_time, songs, playlist_name):
+        if playlist_name:
+            song_ids = [song['ID'] for song in songs]
+            spotipy_fns.overwrite_playlist(playlist_name, song_ids)
+        return 'Playlist saved.'

@@ -34,11 +34,21 @@ fields = {name: dcc.Input(type='text', id=name+'_input', size=30,
 update_button = html.Button(id='update-button', n_clicks=0, children='Search')
 
 # Controls for adding tags
-add_tag_button = html.Button(id='add-tag-button', n_clicks=0, children='Add Tag')
-remove_tag_button = html.Button(id='remove-tag-button', n_clicks=0, children='Remove Tag')
+add_tag_button = html.Button(id='add-tag-button', n_clicks=0, children='Add Tag',
+                             style = {'margin': 5})
+remove_tag_button = html.Button(id='remove-tag-button', n_clicks=0, children='Remove Tag',
+                                style = {'margin': 5})
 tag_field = dcc.Input(type='text', id='tag-input', size=30,
                           style = {'font-size': 22,
                                    'color': color_scheme['offwhite']})
+
+# Controls for editing playlists
+save_playlist_button = html.Button(id='save-playlist-button', n_clicks=0, children='Save playlist as',
+                                   style = {'margin': 5})
+playlist_field = dcc.Input(type='text', id='playlist-input', size=30,
+                           value='Dancify',
+                           style = {'font-size': 22,
+                                    'color': color_scheme['offwhite']})
 
 # Slider elements
 steps = {'Duration': 15,

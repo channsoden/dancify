@@ -15,7 +15,7 @@ def init_authorizer():
         client_secret = current_app.config['SPOTIFY_CLIENT_SECRET']
 
         # Auth parameters
-        scope = "user-library-read playlist-read-private"
+        scope = "user-library-read playlist-read-private playlist-modify-private"
         state = ""
         show_dialog_bool = True
         show_dialog_str = str(show_dialog_bool).lower()
@@ -54,7 +54,7 @@ def load_logged_in_user():
     if token_info is None:
         g.user = None
     else:
-        if authorizer._is_token_expired(token_info):
+        if sp_oauth2.is_token_expired(token_info):
             token_info = authorizer.refresh_access_token(token_info['refresh_token'])
             session['token_info'] = token_info
 

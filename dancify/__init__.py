@@ -30,6 +30,9 @@ def create_app(config, debug=False, testing=False):
 
     from . import dash_components
     dash_components.register_dashapp(app)
+
+    from . import experiments
+    app.register_blueprint(experiments.bp)
     
     @app.route('/')
     def index():
