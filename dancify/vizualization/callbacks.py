@@ -88,7 +88,8 @@ def register_slider(dashapp, hist):
 def register_table(dashapp):
     inputs = [Input('hidden-data', 'children'),
               Input('preferences', 'children'),
-              Input('tags', 'children')]
+              Input('tags', 'children'),
+              Input('sort-order', 'value')]
     slider_ids = [slider+'_slider' for slider in elements.graphables]
     inputs += [Input(slider_id, 'value') for slider_id in slider_ids]
     field_ids = [field+'_input' for field in elements.filterables]
@@ -103,8 +104,9 @@ def register_table(dashapp):
         json_data = args[0]
         preferences = args[1]
         json_tags = args[2]
-        slider_start = 3
-        submit_start = 3 + len(elements.graphables)
+        sort_order = args[3]
+        slider_start = 4
+        submit_start = slider_start + len(elements.graphables)
         field_start = submit_start + len(elements.filterables)
         slider_values = args[slider_start:submit_start]
         field_submits = args[submit_start:field_start]
@@ -124,6 +126,7 @@ def register_table(dashapp):
                               for sid in collection['ID']]
         
         collection = filter_collection(collection, field_values, slider_values, columns)
+        collection.sort_values(by = [sort_order], inplace = True)
                 
         columns = [{"name": c, "id": c} for c in columns]
 

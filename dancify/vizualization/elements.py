@@ -5,6 +5,8 @@ import dash_core_components as dcc
 import dash_html_components as html
 import dash_table as dt
 
+from dancify.music_collections import track_features
+
 color_scheme = {'offwhite': '#dedede',
                 'lGray': '#858585',
                 'mGray': '#535353',
@@ -31,6 +33,15 @@ fields = {name: dcc.Input(type='text', id=name+'_input', size=30,
                           style = {'font-size': 22,
                                    'color': color_scheme['offwhite']})
           for name in filterables}
+
+# Sort order menu
+sort_menu = dcc.Dropdown(id='sort-order',
+                         options = [{'label':f, 'value': f} for f in track_features],
+                         value='Added',
+                         clearable=False)
+sort_label = html.Button(id='sort-button', n_clicks=0, children='Sort By',
+                             style = {'margin': 5,
+                                      'border-width': 0})
 
 # Controls for adding tags
 add_tag_button = html.Button(id='add-tag-button', n_clicks=0, children='Add Tag',

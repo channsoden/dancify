@@ -17,6 +17,10 @@ def collection():
                html.Div(id='page-header')]
 
     content.append( html.Div(id='dynamic-content') )
+
+    sort_controls = html.Div([elements.sort_label,
+                              elements.sort_menu],
+                             id='sort-controls')
     
     tag_controls = html.Div([elements.add_tag_button,
                              elements.remove_tag_button,
@@ -27,7 +31,7 @@ def collection():
                                   elements.playlist_field],
                                  id='playlist-controls')
     
-    controls = html.Div([tag_controls, playlist_controls],
+    controls = html.Div([sort_controls, tag_controls, playlist_controls],
                         id='controls',
                         className = 'graphGrid',
                         style = {'marginBottom': 10})
