@@ -31,7 +31,6 @@ fields = {name: dcc.Input(type='text', id=name+'_input', size=30,
                           style = {'font-size': 22,
                                    'color': color_scheme['offwhite']})
           for name in filterables}
-update_button = html.Button(id='update-button', n_clicks=0, children='Search')
 
 # Controls for adding tags
 add_tag_button = html.Button(id='add-tag-button', n_clicks=0, children='Add Tag',

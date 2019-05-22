@@ -40,8 +40,7 @@ def collection():
     hidden_components = list(elements.fields.values()) + \
                         list(elements.sliders.values()) + \
                         list(elements.graphs.values()) + \
-                        [elements.update_button,
-                         html.Div([], id='null')] # This is a null container for buttons that have no output.
+                        [html.Div([], id='null')] # This is a null container for buttons that have no output.
     content.append( html.Div(hidden_components,
                              id='hidden-components', style={'display': 'none'}) )
 
@@ -56,8 +55,7 @@ def generate_dynamic_content(columns):
                        for field in fields]
     field_div = html.Div([html.Div(field_container, id = 'fields',
                                    className = 'graphGrid'),
-                          elements.field_instructions,
-                          elements.update_button])
+                          elements.field_instructions])
     
     graphs = [col for col in columns if col in elements.graphables]
     graph_container = [html.Div([elements.graphs[graph],

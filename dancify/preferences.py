@@ -22,6 +22,8 @@ def collections():
             where(preferences_table.c.user_id == g.user['id']).\
             values(collections=collection_code)
         conn.execute(u)
+
+        return redirect(url_for('index'))
     
     return render_template('preferences/collections.html', track_features=track_features)
 

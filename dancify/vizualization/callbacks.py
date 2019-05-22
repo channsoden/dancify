@@ -87,12 +87,12 @@ def register_slider(dashapp, hist):
         
 def register_table(dashapp):
     inputs = [Input('hidden-data', 'children'),
-              Input('update-button', 'n_clicks_timestamp'),
               Input('preferences', 'children'),
               Input('tags', 'children')]
     slider_ids = [slider+'_slider' for slider in elements.graphables]
     inputs += [Input(slider_id, 'value') for slider_id in slider_ids]
     field_ids = [field+'_input' for field in elements.filterables]
+    inputs += [Input(field_id, 'n_submit') for field_id in field_ids]
     states = [State(field_id, 'value') for field_id in field_ids]
 
     @dashapp.callback([Output('table', 'data'),
@@ -101,11 +101,14 @@ def register_table(dashapp):
                       states)
     def update_table(*args):
         json_data = args[0]
-        update_time = args[1]
-        preferences = args[2]
-        json_tags = args[3]
-        slider_values = args[4:4+len(elements.graphables)]
-        field_values = args[4+len(elements.graphables):]
+        preferences = args[1]
+        json_tags = args[2]
+        slider_start = 3
+        submit_start = 3 + len(elements.graphables)
+        field_start = submit_start + len(elements.filterables)
+        slider_values = args[slider_start:submit_start]
+        field_submits = args[submit_start:field_start]
+        field_values = args[field_start:]
         
         if (not preferences or
             not json_data or
@@ -134,7 +137,10 @@ def filter_collection(collection, field_values, slider_values, columns):
                 collection = collection.loc[str_contains(collection[col], term)]
             for term in exclude:
                 collection = collection.loc[~str_contains(collection[col], term)]
-            hits = np.zeros(len(collection[col])).astype(bool)
+            if include:
+                hits = np.zeros(len(collection[col])).astype(bool)
+            else:
+                hits = np.ones(len(collection[col])).astype(bool)
             for term in include:
                 hits |= str_contains(collection[col], term)
             collection = collection.loc[hits]
