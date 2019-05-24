@@ -56,7 +56,7 @@ def playlists():
     while list_dispenser['next']:
         list_dispenser = g.sp.next(list_dispenser)
         lists.extend(list_dispenser['items'])
-    lists.sort(key = lambda l: l['name'])
+    lists.sort(key = lambda l: l['name'].lower())
     for l in lists:
         l['viz_url'] = '{}{}/{}'.format(url_for('/viz/'), l['owner']['id'], l['id'])
 
