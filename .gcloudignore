@@ -28,3 +28,6 @@ cloud_sql_proxy
 *.sh~
 start_db_proxy.sh
 
+# Admin controls
+admin.py
+

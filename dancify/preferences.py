@@ -18,6 +18,7 @@ def collections():
         g.preferences['collections']['columns'] = request.form.getlist('columns')
         conn = get_db()
         collection_code = encode_preferences(g.preferences['collections']['columns'], list(track_features.keys()))
+        print(collection_code)
         u = preferences_table.update().\
             where(preferences_table.c.user_id == g.user['id']).\
             values(collections=collection_code)

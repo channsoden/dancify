@@ -33,7 +33,7 @@ def create_app(config, debug=False, testing=False):
 
     from . import experiments
     app.register_blueprint(experiments.bp)
-    
+
     @app.route('/')
     def index():
         return render_template('welcome.html')

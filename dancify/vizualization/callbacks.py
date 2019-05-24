@@ -53,6 +53,12 @@ def register_callbacks(dashapp):
         collection['Release'] = pd.to_datetime(collection['Release']).dt.year
         collection['Duration'] = collection['Duration'] / 1000 # convert to seconds
 
+        if 'Playlists' in columns:
+            # This feature takes a long time to load, so only do it if you have to.
+            collection['Playlists'] = spotipy_fns.playlist_membership(collection['ID'], exclude = [plid])
+        else:
+            collection['Playlists'] = ['' for t in collection['ID']]
+
         playlist_info += ' [{} songs]'.format(len(collection))
         dynamic_layout = layout.generate_dynamic_content(columns)
 

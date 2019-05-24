@@ -1,4 +1,6 @@
 #!/usr/bin/env python
+from collections import defaultdict
+
 import pandas as pd
 from flask import g
 
@@ -112,7 +114,7 @@ def add_tracks_to_playlist(playlist_name, tracks):
     if not playlist:
         return None, 'Playlist not found.'
 
-    if (len(tracks) + len(playlist['tracks'])) > 10000:
+    if (len(tracks) + playlist['tracks']['total']) > 10000:
         return None, 'Playlist too long. (Max 10,000 tracks.)'
         
     i = 0
@@ -133,3 +135,29 @@ def remove_tracks_from_playlist(playlist_name, tracks):
         i += 100
 
     return snapshot, None
+
+def playlist_membership(tracks, exclude = []):
+    # This is extremely slow because it requires requesting all tracks from
+    # each of the user's playlists.
+    # e.g. with 109 playlists takes about 29 seconds
+    list_dispenser = g.sp.current_user_playlists()
+    memberships = defaultdict(set)
+    extract_memberships(memberships, list_dispenser['items'], exclude = exclude)
+    while list_dispenser['next']:
+        list_dispenser = g.sp.next(list_dispenser)
+        extract_memberships(memberships, list_dispenser['items'], exclude = exclude)
+
+    memberships = [', '.join(sorted(list(memberships[t]), key=lambda s: s.lower()))
+                   for t in tracks]
+    return memberships
+
+def extract_memberships(memberships, lists, exclude = []):
+    for pl in lists:
+        if pl['id'] in exclude:
+            continue
+        # This request takes a significant amount of time. (1/4 second)
+        pl = g.sp.user_playlist(g.user['id'], playlist_id=pl['id'])
+        track_dispenser = pl['tracks']
+        tracks = sort_tracks(track_dispenser)
+        for t in tracks:
+            memberships[t['track']['id']].add(pl['name'])

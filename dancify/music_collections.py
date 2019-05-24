@@ -16,6 +16,8 @@ track_features = OrderedDict([('ID', 'ID - Spotify track ID'),
                               ('Artist', 'Artist - Artist name/s'),
                               ('Album', 'Album - Album name'),
                               ('Tags', 'Tags - Your Dancify tags'),
+                              ('Playlists', 'Playlists - The playlists you have added the song to. '\
+                               'WARNING: This feature adds significantly to loading times.'),
                               ('Duration', 'Duration - Track duration in seconds'),
                               ('Added', 'Added - Date the song was added to the collection'),
                               ('Release', 'Release - Release date of the track/album'),

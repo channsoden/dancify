@@ -13,7 +13,7 @@ color_scheme = {'offwhite': '#dedede',
                 'dGray': '#404040',
                 'green': '#1db954'}
 
-filterables = ['Track', 'Artist', 'Album', 'Tags']
+filterables = ['Track', 'Artist', 'Album', 'Tags', 'Playlists']
 graphables = ['Duration', 'Release', 'Popularity', 'Danceability',
               'Energy', 'Tempo', 'Key', 'Loudness', 'Mode',
               'Valence', 'Acousticness', 'Instrumentalness',
