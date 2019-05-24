@@ -76,6 +76,9 @@ def get_track_info(tracks):
 # duration
 
 def overwrite_playlist(playlist_name, tracks):
+    if len(tracks) > 10000:
+        return None, 'Playlist too long. (Max 10,000 tracks.)'
+    
     playlist = get_user_playlist(playlist_name)
     if not playlist:
         playlist = g.sp.user_playlist_create(g.user['id'],
@@ -83,7 +86,13 @@ def overwrite_playlist(playlist_name, tracks):
                                              public = False,
                                              description = 'Made by Dancify.')
 
-    snapshot = g.sp.user_playlist_replace_tracks(g.user['id'], playlist['id'], tracks)
+    snapshot = g.sp.user_playlist_replace_tracks(g.user['id'], playlist['id'], tracks[:100])
+    i = 100
+    while i < len(tracks):
+        snapshot = g.sp.user_playlist_add_tracks(g.user['id'], playlist['id'], tracks[i:i+100])
+        i += 100
+
+    return snapshot, None
 
 def get_user_playlist(playlist_name):
     list_dispenser = g.sp.current_user_playlists()
@@ -97,3 +106,30 @@ def get_user_playlist(playlist_name):
             return l
 
     return None
+
+def add_tracks_to_playlist(playlist_name, tracks):
+    playlist = get_user_playlist(playlist_name)
+    if not playlist:
+        return None, 'Playlist not found.'
+
+    if (len(tracks) + len(playlist['tracks'])) > 10000:
+        return None, 'Playlist too long. (Max 10,000 tracks.)'
+        
+    i = 0
+    while i < len(tracks):
+        snapshot = g.sp.user_playlist_add_tracks(g.user['id'], playlist['id'], tracks[i:i+100])
+        i += 100
+
+    return snapshot, None
+
+def remove_tracks_from_playlist(playlist_name, tracks):
+    playlist = get_user_playlist(playlist_name)
+    if not playlist:
+        return None, 'Playlist not found.'
+
+    i = 0
+    while i < len(tracks):
+        snapshot = g.sp.user_playlist_remove_all_occurrences_of_tracks(g.user['id'], playlist['id'], tracks[i:i+100])
+        i += 100
+
+    return snapshot, None

@@ -24,6 +24,7 @@ def register_callbacks(dashapp):
 
     @spotify_auth.login_required
     @dashapp.callback([Output('page-header', 'children'),
+                       Output('playlist-info', 'children'),
                        Output('hidden-data', 'children'),
                        Output('preferences', 'children'),
                        Output('dynamic-content', 'children')],
@@ -39,20 +40,24 @@ def register_callbacks(dashapp):
         if pathname[0] == 'library':
             track_dispenser = g.sp.current_user_saved_tracks()
             collection_name = 'Library'
+            playlist_info = 'Your Spotify library.'
         else:
             uid, plid = pathname[:2]
             pl = g.sp.user_playlist(uid, playlist_id=plid)
             track_dispenser = pl['tracks']
             collection_name = pl['name']
+            playlist_info = pl['description']
 
         tracks = spotipy_fns.sort_tracks(track_dispenser, sort_key=None)
         collection = spotipy_fns.get_track_info(tracks)
         collection['Release'] = pd.to_datetime(collection['Release']).dt.year
         collection['Duration'] = collection['Duration'] / 1000 # convert to seconds
-        
+
+        playlist_info += ' [{} songs]'.format(len(collection))
         dynamic_layout = layout.generate_dynamic_content(columns)
 
         return (html.H1(collection_name),
+                playlist_info,
                 collection.to_json(date_format='iso', orient='split'),
                 json.dumps(columns),
                 dynamic_layout)
@@ -88,7 +93,8 @@ def register_table(dashapp):
     inputs = [Input('hidden-data', 'children'),
               Input('preferences', 'children'),
               Input('tags', 'children'),
-              Input('sort-order', 'value')]
+              Input('sort-order', 'value'),
+              Input('sort-toggle', 'value')]
     slider_ids = [slider+'_slider' for slider in elements.graphables]
     inputs += [Input(slider_id, 'value') for slider_id in slider_ids]
     field_ids = [field+'_input' for field in elements.filterables]
@@ -96,7 +102,8 @@ def register_table(dashapp):
     states = [State(field_id, 'value') for field_id in field_ids]
 
     @dashapp.callback([Output('table', 'data'),
-                       Output('table', 'columns')],
+                       Output('table', 'columns'),
+                       Output('selection-info', 'children')],
                       inputs,
                       states)
     def update_table(*args):
@@ -104,7 +111,8 @@ def register_table(dashapp):
         preferences = args[1]
         json_tags = args[2]
         sort_order = args[3]
-        slider_start = 4
+        sort_ascending = args[4]
+        slider_start = 5
         submit_start = slider_start + len(elements.graphables)
         field_start = submit_start + len(elements.filterables)
         slider_values = args[slider_start:submit_start]
@@ -127,14 +135,21 @@ def register_table(dashapp):
         collection = filter_collection(collection, field_values, slider_values, columns)
         if collection[sort_order].dtype == collection['Track'].dtype:
             # Convert to lower case for sorting
-            collection = collection.iloc[collection[sort_order].str.lower().argsort()]
+            if sort_ascending:
+                collection = collection.iloc[collection[sort_order].str.lower().argsort()]
+            else:
+                collection = collection.iloc[collection[sort_order].str.lower().argsort()[::-1]]
         else:
             # Numbers sort fine.
-            collection.sort_values(by = [sort_order], inplace = True)
+            collection.sort_values(by = [sort_order], inplace = True, ascending=sort_ascending)
                 
         columns = [{"name": c, "id": c} for c in columns]
 
-        return (collection.to_dict("rows"), columns)
+        selection_info = html.H3('  {} songs selected'.format(len(collection)))
+                      
+        return (collection.to_dict("rows"),
+                columns,
+                selection_info)
 
 def filter_collection(collection, field_values, slider_values, columns):
     for col, val in zip(elements.filterables, field_values):
@@ -268,15 +283,52 @@ def register_tag_controls(dashapp):
 
 def register_playlist_controls(dashapp):
     @dashapp.callback(Output('save-feedback', 'children'),
-                      [Input('save-playlist-button', 'n_clicks_timestamp')],
+                      [Input('save-playlist-button', 'n_clicks_timestamp'),
+                       Input('add-playlist-button', 'n_clicks_timestamp'),
+                       Input('remove-playlist-button', 'n_clicks_timestamp')],
                       [State('table', 'data'),
                        State('playlist-input', 'value')])
-    def save_playlist_as(save_time, songs, playlist_name):
-        if playlist_name:
+    def edit_playlist(save_time, add_time, remove_time, songs, playlist_name):
+        if playlist_name and songs:
+            # This callback gets called on page load,
+            # so all time-stamps will be None until a
+            # button is pressed.
+            if not save_time:
+                save_time = 0
+            if not add_time:
+                add_time = 0
+            if not remove_time:
+                remove_time = 0
+
             song_ids = [song['ID'] for song in songs]
-            spotipy_fns.overwrite_playlist(playlist_name, song_ids)
-            time = dt.fromtimestamp(save_time / 1000)
-            return '{} saved at {}:{}:{:02d}.'.format(playlist_name, time.hour, time.minute, time.second)
+
+            # Save playlist as
+            if save_time > add_time and save_time > remove_time:
+                snapshot, error = spotipy_fns.overwrite_playlist(playlist_name, song_ids)
+                if snapshot:
+                    time = dt.fromtimestamp(save_time / 1000)
+                    return '{} saved at {}:{}:{:02d}.'.format(playlist_name, time.hour, time.minute, time.second)
+                else:
+                    return 'Error: {}'.format(error)
+
+            # Add tracks to playlist
+            elif add_time > save_time and add_time > remove_time:
+                snapshot, error = spotipy_fns.add_tracks_to_playlist(playlist_name, song_ids)
+                if snapshot:
+                    time = dt.fromtimestamp(add_time / 1000)
+                    return 'Tracks added to {} at {}:{}:{:02d}.'.format(playlist_name, time.hour, time.minute, time.second)
+                else:
+                    return 'Error: {}'.format(error)
+            # Remove tracks from playlist
+            elif remove_time > add_time and remove_time > add_time:
+                snapshot, error = spotipy_fns.remove_tracks_from_playlist(playlist_name, song_ids)
+                if snapshot:
+                    time = dt.fromtimestamp(remove_time / 1000)
+                    return 'Tracks removed from {} at {}:{}:{:02d}.'.format(playlist_name, time.hour, time.minute, time.second)
+                else:
+                    return 'Error: {}'.format(error)
+
+            else:
+                return ''
         else:
             return ''
-

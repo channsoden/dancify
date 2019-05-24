@@ -14,11 +14,17 @@ def collection():
                          '   ',
                          html.A("Preferences", href='/preferences/collections')],
                         style = {'text-align': 'right'}),
-               html.Div(id='page-header')]
+               html.Div(id='page-header'),
+               html.Div(id='playlist-info'),
+               html.Hr()]
 
     content.append( html.Div(id='dynamic-content') )
 
-    sort_controls = html.Div([elements.sort_label,
+    selection_info = html.Div([], id='selection-info',
+                              style={'padding-top': '0px',
+                                     'padding-bottom': '0px'})
+    
+    sort_controls = html.Div([elements.sort_toggle,
                               elements.sort_menu],
                              id='sort-controls')
     
@@ -28,12 +34,14 @@ def collection():
                             id='tag-controls')
 
     playlist_controls = html.Div([elements.save_playlist_button,
+                                  elements.add_playlist_button,
+                                  elements.remove_playlist_button,
                                   elements.playlist_field,
                                   html.Div([], id='save-feedback',
                                            style={'font-size':10})],
                                  id='playlist-controls')
     
-    controls = html.Div([sort_controls, tag_controls, playlist_controls],
+    controls = html.Div([selection_info, sort_controls, tag_controls, playlist_controls],
                         id='controls',
                         className = 'graphGrid',
                         style = {'marginBottom': 10})

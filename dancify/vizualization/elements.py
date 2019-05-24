@@ -40,9 +40,13 @@ sort_menu = dcc.Dropdown(id='sort-order',
                          options = [{'label':f, 'value': f} for f in track_features],
                          value='Added',
                          clearable=False)
-sort_label = html.Button(id='sort-button', n_clicks=0, children='Sort By',
-                             style = {'margin': 5,
-                                      'border-width': 0})
+sort_toggle = dcc.RadioItems(id='sort-toggle',
+                             options=[{'label': 'Sort Ascending', 'value': True},
+                                      {'label': 'Sort Descending', 'value': False}],
+                             value=True,
+                             labelStyle={'display': 'inline-block'},
+                             className='button-like',
+                             style = {'margin': 5})
 
 # Controls for adding tags
 add_tag_button = html.Button(id='add-tag-button', n_clicks=0, children='Add Tag',
@@ -55,7 +59,11 @@ tag_field = dcc.Input(type='text', id='tag-input', size=30,
                                    'color': color_scheme['dGray']})
 
 # Controls for editing playlists
-save_playlist_button = html.Button(id='save-playlist-button', n_clicks=0, children='Save playlist as',
+save_playlist_button = html.Button(id='save-playlist-button', n_clicks=0, children='Save as',
+                                   style = {'margin': 5})
+add_playlist_button = html.Button(id='add-playlist-button', n_clicks=0, children='Add',
+                                   style = {'margin': 5})
+remove_playlist_button = html.Button(id='remove-playlist-button', n_clicks=0, children='Remove',
                                    style = {'margin': 5})
 playlist_field = dcc.Input(type='text', id='playlist-input',
                            value='Dancify',

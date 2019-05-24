@@ -366,3 +366,19 @@ div.narrow {
     max-width: 800px;
     margin: 0 auto
 }
+
+div.button-like {
+  display: inline-block;
+  color: #1db954;
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 38px;
+  letter-spacing: .1rem;
+  text-transform: uppercase;
+  text-decoration: none;
+  white-space: nowrap;
+  background-color: transparent;
+  border-radius: 4px;
+  border: 1px transparent;
+  box-sizing: border-box;}
+
