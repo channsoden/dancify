@@ -85,8 +85,9 @@ def register_slider(dashapp, hist):
                        Output(slider_id, 'max'),
                        Output(slider_id, 'value'),
                        Output(slider_id, 'marks')],
-                      [Input('hidden-data', 'children')])
-    def update_slider(json_data):
+                      [Input('hidden-data', 'children'),
+                       Input('clear-filters-button', 'n_clicks')])
+    def update_slider(json_data, nclicks):
         if not json_data:
             return (no_update, no_update, no_update, no_update)
         collection = pd.read_json(json_data, orient='split')
@@ -105,8 +106,7 @@ def register_table(dashapp):
     states = [State(field_id, 'value') for field_id in field_ids]
 
     @dashapp.callback([Output('table', 'data'),
-                       Output('table', 'columns'),
-                       Output('selection-info', 'children')],
+                       Output('table', 'columns')],
                       inputs,
                       states)
     def update_table(*args):
@@ -126,7 +126,7 @@ def register_table(dashapp):
             not json_data or
             not json_tags):
             # URL element has not yet loaded.
-            return (no_update, no_update, no_update)
+            return (no_update, no_update)
 
         columns = json.loads(preferences)
         tags = json.loads(json_tags)
@@ -147,12 +147,34 @@ def register_table(dashapp):
             collection.sort_values(by = [sort_order], inplace = True, ascending=sort_ascending)
                 
         columns = [{"name": c, "id": c} for c in columns]
-
-        selection_info = html.H3('  {} songs selected'.format(len(collection)))
                       
         return (collection.to_dict("rows"),
-                columns,
-                selection_info)
+                columns)
+
+    @dashapp.callback(Output('table', 'selected_rows'),
+                      [Input('unmark-button', 'n_clicks')])
+    def unmark_all(nclicks):
+        return []
+
+    field_outputs = [Output(field_id, 'value') for field_id in field_ids]
+    @dashapp.callback(field_outputs,
+                      [Input('clear-filters-button', 'n_clicks')])
+    def clear_fields(nclicks):
+        return tuple('' for fid in field_ids)
+    
+    @dashapp.callback(Output('selection-info', 'children'),
+                      [Input('table', 'data'),
+                       Input('table', 'selected_rows')])
+    def update_selection_info(rows, selected_rows):
+        if selected_rows:
+            selection_info = '{} songs selected'.format(len(selected_rows))
+            return selection_info
+        elif rows:
+            selection_info = '{} songs selected'.format(len(rows))
+            return selection_info
+        else:
+            return no_update
+
 
 def filter_collection(collection, field_values, slider_values, columns):
     for col, val in zip(elements.filterables, field_values):
@@ -217,11 +239,14 @@ def register_tag_controls(dashapp):
                        Input('remove-tag-button', 'n_clicks_timestamp'),
                        Input('hidden-data', 'children')],
                       [State('table', 'data'),
+                       State('table', 'selected_rows'),
                        State('tag-input', 'value'),
                        State('tags', 'children')])
-    def update_tags(add_time, remove_time, hidden_data, songs, tag, tags):
+    def update_tags(add_time, remove_time, hidden_data, songs, selected_songs, tag, tags):
         if not hidden_data:
             return (no_update, no_update)
+        if selected_songs:
+            songs = [songs[i] for i in selected_songs]
         
         conn = get_db()
 
@@ -293,8 +318,9 @@ def register_playlist_controls(dashapp):
                        Input('add-playlist-button', 'n_clicks_timestamp'),
                        Input('remove-playlist-button', 'n_clicks_timestamp')],
                       [State('table', 'data'),
+                       State('table', 'selected_rows'),
                        State('playlist-input', 'value')])
-    def edit_playlist(save_time, add_time, remove_time, songs, playlist_name):
+    def edit_playlist(save_time, add_time, remove_time, songs, selected_songs, playlist_name):
         if playlist_name and songs:
             # This callback gets called on page load,
             # so all time-stamps will be None until a
@@ -306,7 +332,10 @@ def register_playlist_controls(dashapp):
             if not remove_time:
                 remove_time = 0
 
-            song_ids = [song['ID'] for song in songs]
+            if selected_songs:
+                song_ids = [songs[i]['ID'] for i in selected_songs]
+            else:
+                song_ids = [song['ID'] for song in songs]
 
             # Save playlist as
             if save_time > add_time and save_time > remove_time:

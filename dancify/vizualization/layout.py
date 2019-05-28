@@ -20,28 +20,29 @@ def collection():
 
     content.append( html.Div(id='dynamic-content') )
 
-    selection_info = html.Div([], id='selection-info',
-                              style={'padding-top': '0px',
-                                     'padding-bottom': '0px'})
+    selection_panel = html.Div([elements.selection_feedback,
+                                elements.unmark_button,
+                                elements.clear_filters_button],
+                               id='selection-panel')
     
-    sort_controls = html.Div([elements.sort_toggle,
-                              elements.sort_menu],
-                             id='sort-controls')
     
-    tag_controls = html.Div([elements.add_tag_button,
-                             elements.remove_tag_button,
-                             elements.tag_field],
-                            id='tag-controls')
+    sort_panel = html.Div([elements.sort_toggle,
+                           elements.sort_menu],
+                          id='sort-panel')
+    
+    tag_panel = html.Div([elements.add_tag_button,
+                          elements.remove_tag_button,
+                          elements.tag_field],
+                         id='tag-panel')
 
-    playlist_controls = html.Div([elements.save_playlist_button,
-                                  elements.add_playlist_button,
-                                  elements.remove_playlist_button,
-                                  elements.playlist_field,
-                                  html.Div([], id='save-feedback',
-                                           style={'font-size':10})],
-                                 id='playlist-controls')
+    playlist_panel = html.Div([elements.save_playlist_button,
+                               elements.add_playlist_button,
+                               elements.remove_playlist_button,
+                               elements.playlist_field,
+                               elements.save_feedback],
+                              id='playlist-panel')
     
-    controls = html.Div([selection_info, sort_controls, tag_controls, playlist_controls],
+    controls = html.Div([selection_panel, sort_panel, tag_panel, playlist_panel],
                         id='controls',
                         className = 'graphGrid',
                         style = {'marginBottom': 10})

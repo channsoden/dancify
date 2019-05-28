@@ -70,6 +70,8 @@ playlist_field = dcc.Input(type='text', id='playlist-input',
                            style = {'font-size': 22,
                                     'width': 400,
                                     'color': color_scheme['dGray']})
+save_feedback = html.Div([], id='save-feedback',
+                         style={'font-size':10})
 
 # Slider elements
 steps = {'Duration': 15,
@@ -150,7 +152,7 @@ filtered_table = dt.DataTable(id='table',
                               columns=[{"name": c, "id": c} for c in columns],
                               filtering = False,
                               sorting = False,
-                              row_selectable = False,
+                              row_selectable = 'multi',
                               style_table = {'overflowX': 'scroll'},
                               style_as_list_view = True,
                               style_cell = {'minWidth': '0px',
@@ -170,3 +172,13 @@ filtered_table = dt.DataTable(id='table',
                               css = [{'selector': '.dash-cell div.dash-cell-value',
                                       'rule': 'display: inline; white-space: inherit; overflow: inherit; text-overflow: inherit;'}]
                               )
+
+selection_feedback = html.Div([],
+                              id='selection-info',
+                              className='button-like',
+                              style = {'width': '325px',
+                                       'text-align': 'center'})
+unmark_button = html.Button(id='unmark-button', n_clicks=0, children='Unmark All',
+                            style = {'margin': 5})
+clear_filters_button = html.Button(id='clear-filters-button', n_clicks=0, children='Clear Filters',
+                                   style = {'margin': 5})
