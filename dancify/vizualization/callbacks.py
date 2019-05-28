@@ -5,6 +5,7 @@ from flask import g
 
 import pandas as pd
 import numpy as np
+from dash import no_update
 from dash.dependencies import Input, Output, State
 import dash_core_components as dcc
 import dash_html_components as html
@@ -14,10 +15,6 @@ from dancify import spotify_auth, spotipy_fns
 from dancify.db import get_db, tag_table
 from dancify.vizualization import elements, layout
 
-# Chains of callbacks will throw many TypeError exceptions while they
-# wait for their upstream elements to load.
-class CallbackChain(Exception):
-    pass
 
 def register_callbacks(dashapp):
     dashapp.config['suppress_callback_exceptions'] = False
@@ -31,7 +28,7 @@ def register_callbacks(dashapp):
                       [Input('url', 'pathname')])
     def load_collection(pathname):
         if not pathname:
-            raise CallbackChain('URL element not yet loaded.')
+            return (no_update, no_update, no_update, no_update, no_update)
         
         columns = g.preferences['collections']['columns']
 
@@ -91,7 +88,7 @@ def register_slider(dashapp, hist):
                       [Input('hidden-data', 'children')])
     def update_slider(json_data):
         if not json_data:
-            raise CallbackChain('Hidden data not yet loaded.')
+            return (no_update, no_update, no_update, no_update)
         collection = pd.read_json(json_data, orient='split')
         return elements.configure_slider(hist, collection[hist])
         
@@ -129,7 +126,7 @@ def register_table(dashapp):
             not json_data or
             not json_tags):
             # URL element has not yet loaded.
-            raise CallbackChain('Hidden data not yet loaded.')
+            return (no_update, no_update, no_update)
 
         columns = json.loads(preferences)
         tags = json.loads(json_tags)
@@ -210,7 +207,7 @@ def register_histogram(dashapp, hist):
             return new_figure
         except KeyError:
             # This feature is deselected in preferences, so doesn't appear in the table.
-            raise CallbackChain('Not rendering {}'.format(hist_id))
+            return no_update
 
 
 def register_tag_controls(dashapp):
@@ -223,6 +220,9 @@ def register_tag_controls(dashapp):
                        State('tag-input', 'value'),
                        State('tags', 'children')])
     def update_tags(add_time, remove_time, hidden_data, songs, tag, tags):
+        if not hidden_data:
+            return (no_update, no_update)
+        
         conn = get_db()
 
         if tags:
