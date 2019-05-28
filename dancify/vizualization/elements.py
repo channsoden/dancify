@@ -30,6 +30,7 @@ field_instructions = html.Div([html.P('Separate multiple search terms with comma
 
 # Text field input elements
 fields = {name: dcc.Input(type='text', id=name+'_input',
+                          placeholder = 'Filter by {}'.format(name),
                           style = {'font-size': 22,
                                    'width': 400,
                                    'color': color_scheme['dGray']})
@@ -50,21 +51,27 @@ sort_toggle = dcc.RadioItems(id='sort-toggle',
 
 # Controls for adding tags
 add_tag_button = html.Button(id='add-tag-button', n_clicks=0, children='Add Tag',
+                             title = 'Add tag to selected tracks',
                              style = {'margin': 5})
 remove_tag_button = html.Button(id='remove-tag-button', n_clicks=0, children='Remove Tag',
+                                title = 'Remove tag from selected tracks',
                                 style = {'margin': 5})
 tag_field = dcc.Input(type='text', id='tag-input', size=30,
-                          style = {'font-size': 22,
-                                   'width': 400,
-                                   'color': color_scheme['dGray']})
+                      placeholder = 'Enter tag',
+                      style = {'font-size': 22,
+                               'width': 400,
+                               'color': color_scheme['dGray']})
 
 # Controls for editing playlists
 save_playlist_button = html.Button(id='save-playlist-button', n_clicks=0, children='Save as',
+                                   title = 'Save selected tracks as a playlist (will overwrite)',
                                    style = {'margin': 5})
 add_playlist_button = html.Button(id='add-playlist-button', n_clicks=0, children='Add',
-                                   style = {'margin': 5})
+                                  title = 'Add selected tracks to playlist',
+                                  style = {'margin': 5})
 remove_playlist_button = html.Button(id='remove-playlist-button', n_clicks=0, children='Remove',
-                                   style = {'margin': 5})
+                                     title = 'Remove selected tracks from playlist',
+                                     style = {'margin': 5})
 playlist_field = dcc.Input(type='text', id='playlist-input',
                            value='Dancify',
                            style = {'font-size': 22,
@@ -179,6 +186,8 @@ selection_feedback = html.Div([],
                               style = {'width': '325px',
                                        'text-align': 'center'})
 unmark_button = html.Button(id='unmark-button', n_clicks=0, children='Unmark All',
+                            title = 'Select all tracks by removing all check marks',
                             style = {'margin': 5})
 clear_filters_button = html.Button(id='clear-filters-button', n_clicks=0, children='Clear Filters',
+                                   title = 'Remove all filters',
                                    style = {'margin': 5})

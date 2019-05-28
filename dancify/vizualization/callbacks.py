@@ -49,6 +49,7 @@ def register_callbacks(dashapp):
         collection = spotipy_fns.get_track_info(tracks)
         collection['Release'] = pd.to_datetime(collection['Release']).dt.year
         collection['Duration'] = collection['Duration'] / 1000 # convert to seconds
+        collection['Tempo'] = collection['Tempo'].round()
 
         if 'Playlists' in columns:
             # This feature takes a long time to load, so only do it if you have to.
@@ -145,6 +146,11 @@ def register_table(dashapp):
         else:
             # Numbers sort fine.
             collection.sort_values(by = [sort_order], inplace = True, ascending=sort_ascending)
+
+        # Format floats
+        for col in columns:
+            if collection[col].dtype == float:
+                collection[col] = ['{:0.2f}'.format(n) for n in collection[col]]
                 
         columns = [{"name": c, "id": c} for c in columns]
                       
