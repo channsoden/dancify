@@ -24,7 +24,7 @@ def create_app(config, debug=True, testing=True):
 def clear_preferences_db():
     confirm = input('Type CONFIRM to clear the preferences database.')
     if confirm == 'CONFIRM':
-        conn = get_db()
+        conn = db.engine.connect()
         conn.execute(db.preferences_table.delete())
         conn.close()
         return 'preferences_table cleared'
