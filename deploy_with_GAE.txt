@@ -1,0 +1,18 @@
+git clone https://github.com/channsod
+en/dancify.git
+cd dancify/
+# Copy app.yaml from private repo or create
+#runtime: python37
+#instance_class: F4
+#
+#env_variables:
+#  DANCIFY_SECRET_KEY: 'ARBITRARY SECURE KEY'
+#  SPOTIFY_CLIENT_ID: 'OBTAIN FROM SPOTIFY'
+#  SPOTIFY_CLIENT_SECRET: 'OBTAIN FROM SPOTIFY'
+#  CLOUDSQL_USER: 'root'
+#  CLOUDSQL_PASSWORD: 'OBTAIN FROM GCP'
+#  CLOUDSQL_DATABASE: 'dancify_tags'
+#  CLOUDSQL_CONNECTION_NAME: 'dancifydev:us-west2:dancify-db'
+#  # Pool size * max GAE instances <= maximum connections of cloud SQL instances
+#  DB_POOL_SIZE: '10'
+gcloud app deploy
