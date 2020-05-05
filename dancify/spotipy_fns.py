@@ -1,14 +1,18 @@
 #!/usr/bin/env python
 from collections import defaultdict
+import time, datetime
+from html import escape
 
 import pandas as pd
-from flask import g
+from flask import g, url_for
+import dash_html_components as html
 
 def user_info_block(user_dict):
-    name = user_dict['display_name']
+    name = escape(user_dict['display_name'])
     photo = user_dict['images'][0]['url']
     img_tag = '<img src="{}" alt="{}" height="50" width="50">'
     return '{} {}'.format(img_tag.format(photo, name), name)
+
 
 def sort_tracks(track_dispenser, sort_key=None):
     # this is slow for large collections
@@ -20,6 +24,38 @@ def sort_tracks(track_dispenser, sort_key=None):
         tracks.sort(key=sort_key)
     return tracks
 
+def get_artist_tracks(artid):
+    disco = g.sp.artist_albums(artid)
+    artist_name = escape(disco['items'][0]['artists'][0]['name'])
+    tracks = []
+    for album in disco['items']:
+        album_tracks = get_album_tracks(album)
+        tracks.extend(album_tracks)
+    return artist_name, tracks
+
+def get_album_info(albid):
+    album = g.sp.album(albid)
+    artists = [escape(a['name']) for a in album['artists']]
+    if len(artists) > 1:
+        artists = ', '.join(artists[:-1]) + ' and ' + artists[-1]
+    else:
+        artists = artists[0]
+    tracks = get_album_tracks(album)
+    return artists, escape(album['name']), tracks
+
+def get_album_tracks(album):
+    # This reformat is fairly useless, but makes the data
+    # look like tracks returned by the Spotipy playlist api.
+    album_tracks = g.sp.album_tracks(album['id'])
+    tracks = []
+    for t in album_tracks['items']:
+        t['album'] = album
+        t['popularity'] = None # Not sure how to get popularity outside of pl context.
+        tracks.append({'added_at': time.strftime('%Y-%m-%dT%H:%M:%S%Z'),
+                       'track': t})
+    return tracks
+
+
 def get_track_info(tracks):
     ids = [t['track']['id'] for t in tracks]
     features = []
@@ -27,14 +63,23 @@ def get_track_info(tracks):
         rqst = g.sp.audio_features(ids[i:i+100])
         features.extend(rqst)
 
+    # Link Artist and Album columns to their viz pages.
+    # Use markdown for this https://github.com/plotly/dash-table/issues/222
+    # need to update dash_table
+    artist_link = '[{}](' + url_for('/viz/')  + 'artist/{}' + ')'
+    album_link = '[{}](' + url_for('/viz/')  + 'album/{}' + ')'
+
     df = []
     for track, feats in zip(tracks, features):
         t = {}
         t['ID'] = track['track']['id']
         t['Added'] = track['added_at']
-        t['Track'] = track['track']['name']
-        t['Artist'] = ', '.join([artist['name'] for artist in track['track']['artists']])
-        t['Album'] = track['track']['album']['name']
+        t['Track'] = escape(track['track']['name'])
+        t['Artist'] = ', '.join([artist_link.format(escape(artist['name']),
+                                                    artist['id'])
+                                 for artist in track['track']['artists']])
+        t['Album'] = album_link.format(escape(track['track']['album']['name']),
+                                       track['track']['album']['id'])
         t['Release'] = track['track']['album']['release_date']
         t['Popularity'] = track['track']['popularity']
 
@@ -146,12 +191,13 @@ def playlist_membership(tracks, exclude = []):
     while list_dispenser['next']:
         list_dispenser = g.sp.next(list_dispenser)
         extract_memberships(memberships, list_dispenser['items'], exclude = exclude)
-
     memberships = [', '.join(sorted(list(memberships[t]), key=lambda s: s.lower()))
                    for t in tracks]
     return memberships
 
 def extract_memberships(memberships, lists, exclude = []):
+    uid = g.sp.me()['id']
+    playlist_link = '[{}](' + url_for('/viz/')  + 'playlist/' + uid + '/{}' + ')'
     for pl in lists:
         if pl['id'] in exclude:
             continue
@@ -160,4 +206,44 @@ def extract_memberships(memberships, lists, exclude = []):
         track_dispenser = pl['tracks']
         tracks = sort_tracks(track_dispenser)
         for t in tracks:
-            memberships[t['track']['id']].add(pl['name'])
+            memberships[t['track']['id']].add(playlist_link.format(escape(pl['name']),
+                                                                   pl['id']))
+
+
+def search(album='', artist='', general='', genre='',
+           minDate='', maxDate='', track='', qtype='track',
+           hipster=False, new=False):
+    query = []
+    if album:
+        query.append('album:'+album)
+    if artist:
+        query.append('artist:'+artist)
+    if general:
+        query.append(general)
+    if genre:
+        query.append('genre:'+genre)
+    if track:
+        query.append('track:'+track)
+    if hipster:
+        query.append('tag:hipster')
+    if new:
+        query.append('tag:new')
+        
+    if minDate and maxDate:
+        query.append('year:'+minDate+'-'+maxDate)
+    elif minDate:
+        current_year = int(datetime.now().year)
+        query.append('year:'+minDate+'-'+current_year)
+    elif maxDate:
+        query.append('year:0-'+maxDate)
+    else:
+        pass
+
+    query = ' '.join(query)
+    result = g.sp.search(query, limit=10, offset=0, type=qtype, market=None)
+
+    #result[qtype+'s'].keys() = dict_keys(['href', 'items', 'limit', 'next', 'offset', 'previous', 'total'])
+
+    return result
+
+    

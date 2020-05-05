@@ -1,0 +1,58 @@
+{% extends 'base.html' %}
+
+{% block header %}
+<div class="narrow">
+  <h1>{% block title %}Search{% endblock %}</h1>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="wide">
+  <form method="post">
+    <select id="searchtype" name="qtype">
+      <option value="track">Tracks</option>
+      <option value="album">Albums</option>
+      <option value="artist">Artists</option>
+      <option value="playlist">Playlists</option>
+      <option value="show">Shows</option>
+      <option value="episode">Episodes</option>
+    </select><br><br>
+
+    <label for="general">Any Field:</label><br>
+    <input type="text" id="general" name="general"><br><br>
+    
+    <label for="track">Track:</label><br>
+    <input type="text" id="track" name="track"><br><br>
+    
+    <label for="artist">Artist:</label><br>
+    <input type="text" id="artist" name="artist"><br><br>
+    
+    <label for="album">Album:</label><br>
+    <input type="text" id="album" name="album"><br><br>
+
+    <label for="mindate">Years:</label><br>
+    <input type="number" id="mindate" name="minDate" size="4" placeholder="0000">
+    <label for="maxdate">
+      <div class=button-like style="color:#dedede">-</div>
+    </label>
+    <input type="number" id="maxdate" name="maxDate" size="4" placeholder="2025"><br><br>
+
+    <label for="genre">Genre:</label><br>
+    <input type="text" id="genre" name="genre"><br><br>
+
+    <label><input type="checkbox" name="new" value="new" style="margin: 5px 4px 5px 4px">New</label>
+    <label><input type="checkbox" name="hipster" value="hipster" style="margin: 5px 4px 5px 4px">Hipster</label>
+    <br><br>
+
+    <p>Use "NOT" to exclude results. For example "roadhouse NOT blues" returns items that match “roadhouse” but excludes those that also contain the keyword “blues”.</p>
+    <p>Use "OR" to broaden results. For example "roadhouse OR blues" returns all the results that include either of the terms. Only one OR operator can be used in a query.</p>
+    <p>Use double quotes to search for phrases or titles with spaces (e.g. '"blood sex sugar magik"').</p>
+    
+    <input type="submit" value="Search"><br><br>
+  </form>
+  <hr>
+  <div id="results" class=wide>
+    {{ results | safe }}
+  </div>
+</div>
+{% endblock %}

@@ -47,8 +47,10 @@ def navpoints(page, pages):
 def library(page):
     # can I keep some of this in local storage so that I don't have to make as many fetches
     track_dispenser = g.sp.current_user_saved_tracks()
+    sort_key = None # Eventually should set this preference and retrieve from g
+    tracks = spotipy_fns.sort_tracks(track_dispenser, sort_key=sort_key)
     viz_url = '{}library'.format(url_for('/viz/'))
-    return collection(track_dispenser, page, 'Saved Tracks', viz_url)
+    return collection(tracks, page, 'Saved Tracks', viz_url)
     
 @bp.route('/playlists')
 @spotify_auth.login_required
@@ -60,7 +62,7 @@ def playlists():
         lists.extend(list_dispenser['items'])
     lists.sort(key = lambda l: l['name'].lower())
     for l in lists:
-        l['viz_url'] = '{}{}/{}'.format(url_for('/viz/'), l['owner']['id'], l['id'])
+        l['viz_url'] = '{}playlist/{}/{}'.format(url_for('/viz/'), l['owner']['id'], l['id'])
 
     return render_template('collections/playlists.html', lists=lists)
 
@@ -70,16 +72,16 @@ def playlists():
 def playlist(uid, plid, page):
     pl = g.sp.user_playlist(uid, playlist_id=plid)
     track_dispenser = pl['tracks']
-    viz_url = '{}{}/{}'.format(url_for('/viz/'), uid, plid)
-    return collection(track_dispenser, page, pl['name'], viz_url)
-
-def collection(track_dispenser, page, collection_name, viz_url):
-    # Eventually should set these preferences and retrieve from g
-    sort_key = None
-    page_size = 100
-    
+    sort_key = None # Eventually should set this preference and retrieve from g
     tracks = spotipy_fns.sort_tracks(track_dispenser, sort_key=sort_key)
+    viz_url = '{}{}/{}'.format(url_for('/viz/'), uid, plid)
+    return collection(tracks, page, pl['name'], viz_url)
 
+
+
+def collection(tracks, page, collection_name, viz_url):
+    # Eventually should set this preference and retrieve from g
+    page_size = 100
     pages = ceil(len(tracks) / page_size)
     page = max(1, min(page, pages))
     pagination = navpoints(page, pages)

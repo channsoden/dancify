@@ -155,27 +155,30 @@ def hist(name, xvalues):
 
 # Table element
 columns = filterables + graphables
+# It would be nice to remove the hot pink cell selection in the future.
+# This doesn't seem to work, unfortunately.
+#style_data_conditional = [{'if': {'state':'focused'}},
+#                          {'backgroundColor': color_scheme['green']}],
+# Would be even better to remove the cell selection entirely so
+# that you don't have to double click links.
 filtered_table = dt.DataTable(id='table',
                               columns=[{"name": c, "id": c} for c in columns],
-                              filtering = False,
-                              sorting = False,
                               row_selectable = 'multi',
+                              page_action = 'native',
+                              page_size = 25,
                               style_table = {'overflowX': 'scroll'},
                               style_as_list_view = True,
                               style_cell = {'minWidth': '0px',
                                             'maxWidth': '250px',
                                             'whiteSpace': 'no-wrap',
-                                            'overflow': 'hidden',
+                                            'overflow': 'auto',
                                             'textOverflow': 'ellipsis',
                                             'backgroundColor': color_scheme['dGray'],
                                             'color': color_scheme['offwhite']},
-                              style_header = {'backgroundColor': color_scheme['dGray'],
+                              style_header = {'textAlign': 'left',
+                                              'backgroundColor': color_scheme['dGray'],
                                               'color': color_scheme['lGray']},
-                              pagination_mode = 'fe',
-                              pagination_settings = {'displayed_pages': 1,
-                                                     'current_page': 0,
-                                                     'page_size': 50},
-                              navigation = 'page',
+
                               css = [{'selector': '.dash-cell div.dash-cell-value',
                                       'rule': 'display: inline; white-space: inherit; overflow: inherit; text-overflow: inherit;'}]
                               )

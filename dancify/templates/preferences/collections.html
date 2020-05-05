@@ -11,9 +11,9 @@
   <form method="post">
     {% for feat, description in track_features.items() %}
     {% if feat in g.preferences['collections']['columns'] %}
-    <label><input type="checkbox" name="columns" value="{{ feat }}" checked>{{ description }}</label>
+    <input type="checkbox" name="columns" value="{{ feat }}" checked><label>{{ description }}</label>
     {% else %}
-    <label><input type="checkbox" name="columns" value="{{ feat }}">{{ description }}</label>
+    <input type="checkbox" name="columns" value="{{ feat }}"><label>{{ description }}</label>
     {% endif %}
     {% endfor %}
     <input type="submit" value="Save">

@@ -29,40 +29,15 @@ def register_callbacks(dashapp):
     def load_collection(pathname):
         if not pathname:
             return (no_update, no_update, no_update, no_update, no_update)
-        
         columns = g.preferences['collections']['columns']
-
-        # This step is expensive, since it must wait for responses from Spotify.
-        pathname = pathname.strip('/').split('/')[1:]
-        if pathname[0] == 'library':
-            track_dispenser = g.sp.current_user_saved_tracks()
-            collection_name = 'Library'
-            playlist_info = 'Your Spotify library.'
-        else:
-            uid, plid = pathname[:2]
-            pl = g.sp.user_playlist(uid, playlist_id=plid)
-            track_dispenser = pl['tracks']
-            collection_name = pl['name']
-            playlist_info = pl['description']
-
-        tracks = spotipy_fns.sort_tracks(track_dispenser, sort_key=None)
-        collection = spotipy_fns.get_track_info(tracks)
-        collection['Release'] = pd.to_datetime(collection['Release']).dt.year
-        collection['Duration'] = collection['Duration'] / 1000 # convert to seconds
-        collection['Tempo'] = collection['Tempo'].round()
-
-        if 'Playlists' in columns:
-            # This feature takes a long time to load, so only do it if you have to.
-            collection['Playlists'] = spotipy_fns.playlist_membership(collection['ID'], exclude = [plid])
-        else:
-            collection['Playlists'] = ['' for t in collection['ID']]
-
-        playlist_info += ' [{} songs]'.format(len(collection))
+        plf =  'Playlists' in columns
+        # These two steps are expensive because they must wait for responses from Spotify.
+        collection_name, collection_info, tracks, plid = parse_viz_path(pathname)
+        collection_json = get_collection_data(tracks, playlist_feature=plf, plid=plid)
         dynamic_layout = layout.generate_dynamic_content(columns)
-
         return (html.H1(collection_name),
-                playlist_info,
-                collection.to_json(date_format='iso', orient='split'),
+                collection_info,
+                collection_json,
                 json.dumps(columns),
                 dynamic_layout)
 
@@ -78,6 +53,58 @@ def register_callbacks(dashapp):
         register_histogram(dashapp, hist)
     register_playlist_controls(dashapp)
 
+    
+def parse_viz_path(pathname):
+    pathname = pathname.strip('/').split('/')[1:]
+    plid = None
+    if pathname[0] == 'library':
+        track_dispenser = g.sp.current_user_saved_tracks()
+        tracks = spotipy_fns.sort_tracks(track_dispenser, sort_key=None)
+        collection_name = 'Library'
+        collection_info = 'Your Spotify library.'
+    elif pathname[0] == 'artist':
+        # linkin park: localhost:5000/viz/artist/6XyY86QOPPrYVGvF9ch6wz
+        artid = pathname[1]
+        collection_name, tracks = spotipy_fns.get_artist_tracks(artid)
+        collection_info = 'Discography of {}.'.format(collection_name)
+    elif pathname[0] == 'album':
+        # A Thousand Suns: localhost:5000/viz/album/113yjuFZEqkkbuLi4sEBxo
+        albid = pathname[1]
+        artist_name, collection_name, tracks = spotipy_fns.get_album_info(albid)
+        collection_info = 'An album by {}.'.format(artist_name)
+    elif pathname[0] == 'playlist':
+        uid, plid = pathname[1:]
+        pl = g.sp.user_playlist(uid, playlist_id=plid)
+        track_dispenser = pl['tracks']
+        tracks = spotipy_fns.sort_tracks(track_dispenser, sort_key=None)
+        collection_name = pl['name']
+        collection_info = pl['description']
+    else:
+        collection_name = "That's a 404!"
+        collection_info = "The page you are looking for was not found."
+        tracks = []
+    if tracks:
+        collection_info += ' [{} songs]'.format(len(tracks))
+    return collection_name, collection_info, tracks, plid
+
+def get_collection_data(tracks, playlist_feature='False', plid = None):
+    if not tracks:
+        return {}
+    collection = spotipy_fns.get_track_info(tracks)
+    collection['Release'] = pd.to_datetime(collection['Release']).dt.year
+    collection['Duration'] = collection['Duration'] / 1000 # convert to seconds
+    collection['Tempo'] = collection['Tempo'].round()
+    if playlist_feature:
+        # This feature takes a long time to load, so only do it if you have to.
+        if plid:
+            exclude = [plid]
+        else:
+            exclude = []
+        collection['Playlists'] = spotipy_fns.playlist_membership(collection['ID'],
+                                                                  exclude = exclude)
+    else:
+        collection['Playlists'] = ['' for t in collection['ID']]
+    return collection.to_json(date_format='iso', orient='split')
         
 def register_slider(dashapp, hist):
     slider_id = hist+'_slider'
@@ -152,7 +179,8 @@ def register_table(dashapp):
             if collection[col].dtype == float:
                 collection[col] = ['{:0.2f}'.format(n) for n in collection[col]]
                 
-        columns = [{"name": c, "id": c} for c in columns]
+        columns = [{"name": c, "id": c, "presentation": "markdown"}
+                   for c in columns]
                       
         return (collection.to_dict("rows"),
                 columns)

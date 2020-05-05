@@ -363,8 +363,37 @@ hr {
 /* Classes
 –––––––––––––––––––––––––––––––––––––––––––––––––– */
 div.narrow {
+    max-width: 400px;
+    margin: 0 auto
+}
+
+div.narrow label {
+    padding-left: 18px;
+    margin:margin: 0px 4px 0px 4px;
+}
+div.narrow input {
+  float: left;
+  vertical-align: bottom;
+  position: relative;
+  top: 2px;
+  *overflow: hidden;
+}
+
+div.wide {
     max-width: 800px;
     margin: 0 auto
+}
+
+div.wide label {
+    float: left;
+    margin: 0px 4px 0px 4px;
+}
+div.wide input {
+  float: left;
+  vertical-align: bottom;
+  position: relative;
+  top: 0px;
+  *overflow: hidden;
 }
 
 div.button-like {
@@ -380,5 +409,22 @@ div.button-like {
   background-color: transparent;
   border-radius: 4px;
   border: 1px transparent;
-  box-sizing: border-box;}
+  box-sizing: border-box;
+}
 
+table.search-table, td {
+    border: none;
+    minWidth: 0px;
+    maxWidth: 250px;
+    whiteSpace: no-wrap;
+    overflow: auto;
+    textOverflow: ellipsis;
+    backgroundColor: #404040;
+    color: #dedede;
+}
+
+table.search-table, th {
+    border: none;
+    backgroundColor: #404040;
+    color: #858585;
+}

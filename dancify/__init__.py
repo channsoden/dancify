@@ -28,6 +28,9 @@ def create_app(config, debug=False, testing=False):
     from . import music_collections
     app.register_blueprint(music_collections.bp)
 
+    from . import search
+    app.register_blueprint(search.bp)
+    
     from . import dash_components
     dash_components.register_dashapp(app)
 

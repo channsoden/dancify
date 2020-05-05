@@ -4,12 +4,12 @@ cachetools==3.1.0
 certifi==2019.3.9
 chardet==3.0.4
 Click==7.0
-dash==0.43.0
-dash-core-components==0.48.0
+dash==1.11.0
+dash-core-components==1.9.1
 dash-daq==0.1.0
-dash-html-components==0.16.0
-dash-renderer==0.24.0
-dash-table==3.7.0
+dash-html-components==1.0.3
+dash-renderer==1.4.0
+dash-table==4.6.2
 decorator==4.4.0
 Flask==1.0.3
 Flask-Babel==0.12.2
@@ -49,3 +49,4 @@ uritemplate==3.0.0
 urllib3==1.25.3
 Werkzeug==0.15.4
 wrapt==1.11.1
+
