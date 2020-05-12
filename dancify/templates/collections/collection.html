@@ -1,14 +1,41 @@
 {% extends 'base.html' %}
 
-{% block header %}
-  <h1>{% block title %}{{ collection }} - <a href="{{ viz_url }}">Vizualize</a>{% endblock %}</h1>
+{% block header_scripts %}
+<script>
+  // This JS is used to set the size of the Dash frame.
+  
+  // First we get the viewport height (minus the header height) and multiply it by 1% to get a value for a vh unit
+  let vh = (window.innerHeight - 120) * 0.01;
+  // Then we set the value in the --vh custom property to the root of the document
+  document.documentElement.style.setProperty('--vh', `${vh}px`);
+
+  // Similar for getting viewport width minus scroll bar width
+  let vw = (window.innerWidth - 18) * 0.01;
+  document.documentElement.style.setProperty('--vw', `${vw}px`);
+  
+  // We listen to the resize event
+  window.addEventListener('resize', () => {
+      // We execute the same script as before
+      let vh = (window.innerHeight - 120) * 0.01;
+      document.documentElement.style.setProperty('--vh', `${vh}px`);
+
+      let vw = (window.innerWidth - 18) * 0.01;
+      document.documentElement.style.setProperty('--vw', `${vw}px`);
+  });
+</script>
 {% endblock %}
 
+{% block title %}{{ title }}{% endblock %}
+
 {% block content %}
-  {{ table|safe }}
-  <center>
-  {% for page_num, page_url in page_links %}
-  <a href="{{ page_url }}">{{ page_num }}</a>
-  {% endfor %}
-  </center>
+{% endblock %}
+
+{% block dash %}
+  <iframe
+    class='dash'
+    id='dash-frame'
+    src={{ dash_url }}
+    scrolling='auto'
+    frameborder="0">
+  </iframe>
 {% endblock %}

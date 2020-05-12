@@ -6,19 +6,8 @@ from dancify.vizualization import elements
 
 def collection():
     content = [dcc.Location(id='url', refresh=False),
-               html.Div([html.A("Logout", href='/auth/logout'),
-                         '   ',
-                         html.A("Playlists", href='/playlists'),
-                         '   ',
-                         html.A("Library", href='/viz/library'),
-                         '   ',
-                         html.A("Preferences", href='/preferences/collections')],
-                        style = {'text-align': 'right'}),
-               html.Div(id='page-header'),
-               html.Div(id='playlist-info'),
-               html.Hr()]
-
-    content.append( html.Div(id='dynamic-content') )
+               html.Div(id='description'),
+               html.Div(id='dynamic-content')]
 
     selection_panel = html.Div([elements.selection_feedback,
                                 elements.unmark_button,

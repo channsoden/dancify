@@ -20,8 +20,7 @@ def register_callbacks(dashapp):
     dashapp.config['suppress_callback_exceptions'] = False
 
     @spotify_auth.login_required
-    @dashapp.callback([Output('page-header', 'children'),
-                       Output('playlist-info', 'children'),
+    @dashapp.callback([Output('description', 'children'),
                        Output('hidden-data', 'children'),
                        Output('preferences', 'children'),
                        Output('dynamic-content', 'children')],
@@ -32,11 +31,10 @@ def register_callbacks(dashapp):
         columns = g.preferences['collections']['columns']
         plf =  'Playlists' in columns
         # These two steps are expensive because they must wait for responses from Spotify.
-        collection_name, collection_info, tracks, plid = parse_viz_path(pathname)
+        tracks, plid, description = parse_viz_path(pathname)
         collection_json = get_collection_data(tracks, playlist_feature=plf, plid=plid)
         dynamic_layout = layout.generate_dynamic_content(columns)
-        return (html.H1(collection_name),
-                collection_info,
+        return (description,
                 collection_json,
                 json.dumps(columns),
                 dynamic_layout)
@@ -60,32 +58,27 @@ def parse_viz_path(pathname):
     if pathname[0] == 'library':
         track_dispenser = g.sp.current_user_saved_tracks()
         tracks = spotipy_fns.sort_tracks(track_dispenser, sort_key=None)
-        collection_name = 'Library'
-        collection_info = 'Your Spotify library.'
+        desc = 'Your Spotify library.'
     elif pathname[0] == 'artist':
         # linkin park: localhost:5000/viz/artist/6XyY86QOPPrYVGvF9ch6wz
         artid = pathname[1]
-        collection_name, tracks = spotipy_fns.get_artist_tracks(artid)
-        collection_info = 'Discography of {}.'.format(collection_name)
+        tracks = spotipy_fns.get_artist_tracks(artid)
+        desc = spotipy_fns.describe_artist(artid)
     elif pathname[0] == 'album':
         # A Thousand Suns: localhost:5000/viz/album/113yjuFZEqkkbuLi4sEBxo
         albid = pathname[1]
-        artist_name, collection_name, tracks = spotipy_fns.get_album_info(albid)
-        collection_info = 'An album by {}.'.format(artist_name)
+        tracks = spotipy_fns.get_album_info(albid)
+        desc = spotipy_fns.describe_album(albid)
     elif pathname[0] == 'playlist':
         uid, plid = pathname[1:]
         pl = g.sp.user_playlist(uid, playlist_id=plid)
         track_dispenser = pl['tracks']
         tracks = spotipy_fns.sort_tracks(track_dispenser, sort_key=None)
-        collection_name = pl['name']
-        collection_info = pl['description']
+        desc = pl['description'] + ' [{} songs]'.format(pl['tracks']['total'])
     else:
-        collection_name = "That's a 404!"
-        collection_info = "The page you are looking for was not found."
         tracks = []
-    if tracks:
-        collection_info += ' [{} songs]'.format(len(tracks))
-    return collection_name, collection_info, tracks, plid
+    desc = html.P(desc)
+    return tracks, plid, desc
 
 def get_collection_data(tracks, playlist_feature='False', plid = None):
     if not tracks:

@@ -1,33 +1,57 @@
 <!doctype html>
 <title>Dancify</title>
 <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-<nav>
-  <div id="navigation">    
+
+<section id="header">
+  <header class="stickyheader">
+    {% block header_scripts %} {% endblock %}
+    <div class="header-title" id='pagetitle'>
+      <h1 class='ingrid'>{% block title %}{% endblock %}</h1>
+    </div>
+    
     {% if g.user %}
-      <span>{{ g.user['display_name'] }}
+    <div class="header-profile" id="profile">
+      {{ g.user['display_name'] }}
+    </div>
+
+    <div class="header-profile-pic" id="profile">
       {% if g.user['images'] %}
-        <img src="{{ g.user['images'][0]['url'] }}" alt="{{ g.user['display_name'] }}" height="50" width="50">
+      <img src="{{ g.user['images'][0]['url'] }}"
+	   alt="{{ g.user['display_name'] }}"
+	   height="50" width="50">
       {% else %}
-	<img src="/static/images/user.jpg" alt="{{ g.user['display_name'] }}" height="50" width="50">
+      <img src="/static/images/user.jpg"
+	   alt="{{ g.user['display_name'] }}"
+	   height="50" width="50">
       {% endif %}
-	</span>
-      <br>
+    </div>
+
+    <nav class="header-nav" id="header-navigation">
       <a href="{{ url_for('auth.logout') }}">Log Out</a>
       <a href="{{ url_for('collections.playlists') }}">Playlists</a>
       <a href="/viz/library">Library</a>
       <a href="/search">Search</a>
       <a href="{{ url_for('preferences.collections') }}">Preferences</a>
+      </nav>
     {% else %}
+    <div class="header-profile" id="profile"></div>
+    <div class="header-profile-pic" id="profile"></div>
+    <nav class="header-nav" id="header-navigation">
       <a href="{{ url_for('auth.login') }}">Log In</a>
+    </nav>
     {% endif %}
-  </div>
-</nav>
-<section class="content">
-  <header>
-    {% block header %}{% endblock %}
+      
   </header>
+</section>
+
+<section class="body" id="body">
   {% for message in get_flashed_messages() %}
     <div class="flash">{{ message }}</div>
-  {% endfor %}
-  {% block content %}{% endblock %}
+    {% endfor %}
+  <div class="content">
+    {% block content %}{% endblock %}
+  </div>
+  <div class="dash">
+    {% block dash %}{% endblock %}
+  </div>
 </section>

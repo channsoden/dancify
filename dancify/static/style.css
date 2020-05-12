@@ -35,34 +35,32 @@
 
 /* Grid
 –––––––––––––––––––––––––––––––––––––––––––––––––– */
-@media only screen and (min-width: 400px) {
+.graphGrid {
+    display: grid;
+    grid-template-columns: 350px;
+}
+
+@media only screen and (min-width: 800px) {
     .graphGrid {
 	display: grid;
-	grid-template-columns: 400px;
+	grid-template-columns: 350px 350px;
+	grid-column-gap: 50px;
     }
 }
 
-@media only screen and (min-width: 860px) {
+@media only screen and (min-width: 1200px) {
     .graphGrid {
 	display: grid;
-	grid-template-columns: 400px 400px;
-	grid-column-gap: 60px;
+	grid-template-columns: 350px 350px 350px;
+	grid-column-gap: 50px;
     }
 }
 
-@media only screen and (min-width: 1320px) {
+@media only screen and (min-width: 1600px) {
     .graphGrid {
 	display: grid;
-	grid-template-columns: 400px 400px 400px;
-	grid-column-gap: 60px;
-    }
-}
-
-@media only screen and (min-width: 1780px) {
-    .graphGrid {
-	display: grid;
-	grid-template-columns: 400px 400px 400px 400px;
-	grid-column-gap: 60px;
+	grid-template-columns: 350px 350px 350px 350px;
+	grid-column-gap: 50px;
     }
 }
 
@@ -73,17 +71,17 @@ html is set to 62.5% so that all the REM measurements throughout Skeleton
 are based on 10px sizing. So basically 1.5rem = 15px :) */
 html {
   font-size: 62.5%; 
-  background: #404040 }
+  background: #535353 }
 body {
   font-size: 1.5em; /* currently ems cause chrome bug misinterpreting rems on body element */
   line-height: 1.5em;
   font-weight: 400;
   font-family: "Open Sans", "HelveticaNeue", "Helvetica Neue", Helvetica, Arial, sans-serif;
   color: #dedede;
-  background: #404040 }
+  background: #535353 }
 
 #navigation {
-  text-align: right }
+   }
 
 
 /* Typography
@@ -92,13 +90,34 @@ h1, h2, h3, h4, h5, h6 {
   margin-top: 0;
   margin-bottom: 0;
   font-weight: 300;
-  color: #1db954}
-h1 { font-size: 4.5rem; line-height: 1.2;  letter-spacing: -.1rem; margin-bottom: 2rem; }
-h2 { font-size: 3.6rem; line-height: 1.25; letter-spacing: -.1rem; margin-bottom: 1.8rem; margin-top: 1.8rem;}
-h3 { font-size: 3.0rem; line-height: 1.3;  letter-spacing: -.1rem; margin-bottom: 1.5rem; margin-top: 1.5rem;}
-h4 { font-size: 2.6rem; line-height: 1.35; letter-spacing: -.08rem; margin-bottom: 1.2rem; margin-top: 1.2rem;}
-h5 { font-size: 2.2rem; line-height: 1.5;  letter-spacing: -.05rem; margin-bottom: 0.6rem; margin-top: 0.6rem;}
-h6 { font-size: 2.0rem; line-height: 1.6;  letter-spacing: 0; margin-bottom: 0.75rem; margin-top: 0.75rem;}
+  color: #1db954;
+  font-size: 2.0rem;
+  line-height: 1.6;
+  letter-spacing: 0;
+  margin-bottom: 0.75rem;
+  margin-top: 0.75rem;}
+
+@media only screen and (min-width: 600px) {
+    h1 { font-size: 3.0rem; line-height: 1.3;  letter-spacing: -.1rem; margin-bottom: 1.5rem; margin-top: 1.5rem;}
+    h2 { font-size: 2.6rem; line-height: 1.35; letter-spacing: -.08rem; margin-bottom: 1.2rem; margin-top: 1.2rem;}
+    h3, h4, h5, h6 { font-size: 2.2rem; line-height: 1.5;  letter-spacing: -.05rem; margin-bottom: 0.6rem; margin-top: 0.6rem;}
+}
+
+@media only screen and (min-width: 800px) {
+    h1 { font-size: 3.6rem; line-height: 1.25; letter-spacing: -.1rem; margin-bottom: 1.8rem; margin-top: 1.8rem;}
+    h2 { font-size: 3.0rem; line-height: 1.3;  letter-spacing: -.1rem; margin-bottom: 1.5rem; margin-top: 1.5rem;}
+    h3 { font-size: 2.6rem; line-height: 1.35; letter-spacing: -.08rem; margin-bottom: 1.2rem; margin-top: 1.2rem;}
+    h4, h5, h6 { font-size: 2.2rem; line-height: 1.5;  letter-spacing: -.05rem; margin-bottom: 0.6rem; margin-top: 0.6rem;}
+}
+
+@media only screen and (min-width: 1200px) {
+    h1 { font-size: 4.5rem; line-height: 1.2;  letter-spacing: -.1rem; margin-bottom: 2rem; }
+    h2 { font-size: 3.6rem; line-height: 1.25; letter-spacing: -.1rem; margin-bottom: 1.8rem; margin-top: 1.8rem;}
+    h3 { font-size: 3.0rem; line-height: 1.3;  letter-spacing: -.1rem; margin-bottom: 1.5rem; margin-top: 1.5rem;}
+    h4 { font-size: 2.6rem; line-height: 1.35; letter-spacing: -.08rem; margin-bottom: 1.2rem; margin-top: 1.2rem;}
+    h5 { font-size: 2.2rem; line-height: 1.5;  letter-spacing: -.05rem; margin-bottom: 0.6rem; margin-top: 0.6rem;}
+    h6 { font-size: 2.0rem; line-height: 1.6;  letter-spacing: 0; margin-bottom: 0.75rem; margin-top: 0.75rem;}
+}
 
 p {
   margin-top: 0; }
@@ -118,11 +137,11 @@ blockquote {
 /* Links
 –––––––––––––––––––––––––––––––––––––––––––––––––– */
 a {
-  color: #1EAEDB; 
-  text-decoration: underline;
+  color: #1db954; 
   cursor: pointer;}
 a:hover {
-  color: #0FA0CE; }
+    color: #15843c;
+    text-decoration: underline;}
 
 
 /* Buttons
@@ -362,6 +381,81 @@ hr {
 
 /* Classes
 –––––––––––––––––––––––––––––––––––––––––––––––––– */
+
+.stickyheader {
+    position:fixed;
+    top:0;
+    left:0;
+    width: 100vh;
+    padding: 0 40vw 0 7.5vw;
+    background: #404040;
+    z-index:10;
+    display: grid;
+    grid-template-columns: 40vw 36vw 50px;
+    grid-template-rows: 50px 50px
+}
+
+.header-title {
+    grid-column-start: 1;
+    grid-column-end: 2;
+    grid-row-start: 1;
+    grid-row-end: 3;
+    align-self: center;
+    white-space: nowrap;
+    overflow: hidden;
+}
+
+.header-profile {
+    grid-column-start: 2;
+    grid-column-end: 3;
+    grid-row-start: 1;
+    grid-row-end: 2;
+    text-align: right;
+    align-self: center;
+    margin-right: 4px
+}
+
+.header-profile-pic {
+    grid-column-start: 3;
+    grid-column-end: 4;
+    grid-row-start: 1;
+    grid-row-end: 2;
+    align-self: center
+}
+
+.header-nav {
+    grid-column-start: 2;
+    grid-column-end: 4;
+    grid-row-start: 2;
+    grid-row-end: 3;
+    text-align: right;
+    align-self: center
+}
+
+h1.ingrid {
+    margin: 0;
+}
+
+section.body {
+    margin-top: 100px;
+    z-index:1
+}
+
+div.content {    
+    padding: 20px 7.5vw 0 7.5vw;
+}
+
+/* Styling for the frame containing the dash elements.
+--vh and --vw are set by JS in teh collection.html template. */
+.dash {
+    position: absolute;
+    overflow: auto;
+    width: 98%;/* Use vw as a fallback for browsers that do not support Custom Properties */
+    width: calc(var(--vw, 1vw) * 100);
+    height: 80%; /* Use vh as a fallback for browsers that do not support Custom Properties */
+    height: calc(var(--vh, 1vh) * 100);
+}
+
 div.narrow {
     max-width: 400px;
     margin: 0 auto
@@ -376,7 +470,7 @@ div.narrow input {
   vertical-align: bottom;
   position: relative;
   top: 2px;
-  *overflow: hidden;
+  overflow: hidden;
 }
 
 div.wide {
@@ -393,8 +487,43 @@ div.wide input {
   vertical-align: bottom;
   position: relative;
   top: 0px;
-  *overflow: hidden;
+  overflow: hidden;
 }
+
+div.narrow-columns {
+    max-width: 400px;
+    margin: 0 auto
+}
+
+@media only screen and (min-width: 800px) {
+    div.narrow-columns {
+    max-width: 800px;
+    margin: 0 auto;
+    column-count: 2;
+    column-width: 380px; 
+    column-gapL 40px;
+    }
+}
+
+@media only screen and (min-width: 1200px) {
+    div.narrow-columns {
+    max-width: 1200px;
+    margin: 0 auto;
+    column-count: 3;
+    column-width: 380px; 
+    column-gapL 40px;
+    }
+}
+
+@media only screen and (min-width: 1600px) {
+    div.narrow-columns {
+    max-width: 1600px;
+    margin: 0 auto;
+    column-count: 4;
+    column-width: 380px; 
+    column-gapL 40px;
+    }
+}   
 
 div.button-like {
   display: inline-block;

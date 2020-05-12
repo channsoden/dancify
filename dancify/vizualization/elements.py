@@ -13,6 +13,8 @@ color_scheme = {'offwhite': '#dedede',
                 'dGray': '#404040',
                 'green': '#1db954'}
 
+grid_size = 350
+
 filterables = ['Track', 'Artist', 'Album', 'Tags', 'Playlists']
 graphables = ['Duration', 'Release', 'Popularity', 'Danceability',
               'Energy', 'Tempo', 'Key', 'Loudness', 'Mode',
@@ -32,7 +34,7 @@ field_instructions = html.Div([html.P('Separate multiple search terms with comma
 fields = {name: dcc.Input(type='text', id=name+'_input',
                           placeholder = 'Filter by {}'.format(name),
                           style = {'font-size': 22,
-                                   'width': 400,
+                                   'width': grid_size,
                                    'color': color_scheme['dGray']})
           for name in filterables}
 
@@ -59,7 +61,7 @@ remove_tag_button = html.Button(id='remove-tag-button', n_clicks=0, children='Re
 tag_field = dcc.Input(type='text', id='tag-input', size=30,
                       placeholder = 'Enter tag',
                       style = {'font-size': 22,
-                               'width': 400,
+                               'width': grid_size,
                                'color': color_scheme['dGray']})
 
 # Controls for editing playlists
@@ -75,7 +77,7 @@ remove_playlist_button = html.Button(id='remove-playlist-button', n_clicks=0, ch
 playlist_field = dcc.Input(type='text', id='playlist-input',
                            value='Dancify',
                            style = {'font-size': 22,
-                                    'width': 400,
+                                    'width': grid_size,
                                     'color': color_scheme['dGray']})
 save_feedback = html.Div([], id='save-feedback',
                          style={'font-size':10})
@@ -141,8 +143,8 @@ def hist(name, xvalues):
                       'type': 'histogram',
                       'marker': {'color': color_scheme['green']} }],
             'layout': {'autosize':False,
-                       'width': 400,
-                       'height': 400,
+                       'width': grid_size,
+                       'height': grid_size,
                        'yaxis': {'title': name,
                                  'titlefont': {'size': 20,
                                                'color': color_scheme['offwhite']},

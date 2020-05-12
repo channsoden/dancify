@@ -13,6 +13,37 @@ def user_info_block(user_dict):
     img_tag = '<img src="{}" alt="{}" height="50" width="50">'
     return '{} {}'.format(img_tag.format(photo, name), name)
 
+def describe_artist(artid):
+    artist = g.sp.artist(artid)
+    popularity = '{} ({}/100)'.format(pop_scale(artist['popularity']), artist['popularity'])
+    if len(artist['genres']) > 1:
+        genres = 'the ' + ', '.join(artist['genres'][:-1]) + ' and ' + artist['genres'][-1] + ' genres'
+    elif len(artist['genres']) == 1:
+        genres = 'the ' + artist['genres'][0] + ' genre'
+    else:
+        genres = 'an unclassified genre'
+    desc = '{} is {} and performs in {}.'
+    return desc.format(artist['name'], popularity, genres)
+
+def describe_album(albid):
+    album = g.sp.album(albid)
+    artists = [a['name'] for a in album['artists']]
+    if len(artists) > 1:
+        artists = ', '.join(artists[:-1]) + ' and ' + artists[-1]
+    else:
+        artists = artists[0]
+    if len(album['genres']) > 1:
+        genres = 'the ' + ', '.join(album['genres'][:-1]) + ' and ' + album['genres'][-1] + ' genres'
+    elif len(album['genres']) == 1:
+        genres = 'the ' + album['genres'][0] + ' genre'
+    else:
+        genres = 'an unclassified genre'
+    desc = 'A {} {} by {} in {}. [{} tracks]'
+    return desc.format(album['release_date'].split('-')[0],
+                       album['album_type'],
+                       artists,
+                       genres,
+                       album['tracks']['total'])
 
 def sort_tracks(track_dispenser, sort_key=None):
     # this is slow for large collections
@@ -26,22 +57,16 @@ def sort_tracks(track_dispenser, sort_key=None):
 
 def get_artist_tracks(artid):
     disco = g.sp.artist_albums(artid)
-    artist_name = escape(disco['items'][0]['artists'][0]['name'])
     tracks = []
     for album in disco['items']:
         album_tracks = get_album_tracks(album)
         tracks.extend(album_tracks)
-    return artist_name, tracks
+    return tracks
 
 def get_album_info(albid):
     album = g.sp.album(albid)
-    artists = [escape(a['name']) for a in album['artists']]
-    if len(artists) > 1:
-        artists = ', '.join(artists[:-1]) + ' and ' + artists[-1]
-    else:
-        artists = artists[0]
     tracks = get_album_tracks(album)
-    return artists, escape(album['name']), tracks
+    return tracks
 
 def get_album_tracks(album):
     # This reformat is fairly useless, but makes the data
