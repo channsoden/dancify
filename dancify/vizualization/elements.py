@@ -67,13 +67,13 @@ tag_field = dcc.Input(type='text', id='tag-input', size=30,
 # Controls for editing playlists
 save_playlist_button = html.Button(id='save-playlist-button', n_clicks=0, children='Save as',
                                    title = 'Save selected tracks as a playlist (will overwrite)',
-                                   style = {'margin': 5})
+                                   style = {'margin': 4})
 add_playlist_button = html.Button(id='add-playlist-button', n_clicks=0, children='Add',
                                   title = 'Add selected tracks to playlist',
-                                  style = {'margin': 5})
+                                  style = {'margin': 4})
 remove_playlist_button = html.Button(id='remove-playlist-button', n_clicks=0, children='Remove',
                                      title = 'Remove selected tracks from playlist',
-                                     style = {'margin': 5})
+                                     style = {'margin': 4})
 playlist_field = dcc.Input(type='text', id='playlist-input',
                            value='Dancify',
                            style = {'font-size': 22,
@@ -152,8 +152,8 @@ def hist(name, xvalues):
                                  'showticklabels': False},
                        'xaxis': {'tickcolor': color_scheme['offwhite'],
                                  'tickfont': graph_font },
-                       'plot_bgcolor': color_scheme['dGray'],
-                       'paper_bgcolor': color_scheme['dGray']} }
+                       'plot_bgcolor': color_scheme['mGray'],
+                       'paper_bgcolor': color_scheme['mGray']} }
 
 # Table element
 columns = filterables + graphables
